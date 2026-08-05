@@ -23,7 +23,7 @@ export function AuthFormSide() {
   return (
     <aside className="relative hidden min-h-screen overflow-hidden px-10 py-9 lg:flex xl:px-14">
       <div className="absolute left-[-20%] top-[18%] h-[56rem] w-[56rem] rounded-full border border-[#3755ff]/20 bg-[radial-gradient(circle_at_38%_36%,rgba(101,76,255,0.24),rgba(7,9,34,0.7)_43%,rgba(0,0,0,0)_70%)] shadow-[0_0_90px_rgba(58,78,255,0.16)]" />
-      <div className="absolute bottom-[18%] left-[-8%] h-32 w-[58%] rounded-full bg-[#0757ff]/22 blur-3xl" />
+      <div className="absolute bottom-[18%] left-[-8%] h-32 w-[55%] rounded-full bg-[#0757ff]/22 blur-3xl" />
       <div className="absolute bottom-[22%] left-[24%] h-24 w-80 rounded-full bg-[#9b2cff]/24 blur-3xl" />
 
       <div className="relative z-10 flex min-h-full w-full max-w-[45rem] flex-col justify-between">
