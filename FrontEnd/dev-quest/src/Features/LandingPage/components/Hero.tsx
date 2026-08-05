@@ -1,7 +1,7 @@
 'use client';
 
 import { useState , useRef} from "react";
-
+import Link from "next/link";
 
 export function Hero(){
     const [showCta, setShowCta] = useState(false);
@@ -36,24 +36,24 @@ export function Hero(){
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent" />
 
         <div
-          className={`absolute inset-x-0 bottom-14 flex flex-wrap items-center justify-center gap-4 px-6 transition-all duration-700 ease-out ${
+          className={`absolute inset-x-0 bottom-14 flex flex-wrap items-center justify-center gap-4 px-6 transition-all duration-700 ease-out pt-2 ${
             showCta
               ? "translate-y-0 opacity-100"
               : "pointer-events-none translate-y-6 opacity-0"
           }`}
         >
-          <a
+          <Link
             href="#"
             className="rounded-lg bg-gradient-to-r from-brand-violet to-brand-blue px-7 py-3 text-sm font-semibold text-[#f2f2f2] shadow-glow transition-all duration-300 hover:-translate-y-0.5 hover:scale-105"
           >
             Ver Desafios
-          </a>
-          <a
+          </Link>
+          <Link
             href="#"
             className="rounded-lg border border-border bg-card/60 px-7 py-3 text-sm font-semibold text-[#f2f2f2] backdrop-blur transition-all duration-300 hover:scale-105 hover:bg-card"
           >
             Começar Gratuitamente
-          </a>
+          </Link>
         </div>
       </main>
       </section>

@@ -1,8 +1,5 @@
 import {
   ArrowRight,
-  Bell,
-  Settings,
-  Search,
   Cpu,
   Users,
   Link2,
@@ -78,7 +75,7 @@ const wideFeatures = [
             </span>
           
           
-            <h2 className="mx-auto mt-4 max-w-2xl text-4xl font-bold leading-tight md:text-5xl">
+            <h2 className="mx-auto mt-4 max-w-2xl text-4xl font-bold leading-tight md:text-5xl overflow-hidden">
               Acelere sua operação com processos low-code
             </h2>
           
@@ -146,7 +143,7 @@ const wideFeatures = [
         </div>
 
         
-          <div className="mt-12 flex justify-center">
+          <div className="mt-12 flex justify-center pt-2">
             <a
               href="#"
               className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-violet to-brand-blue px-7 py-3.5 text-sm font-semibold text-[#f2f2f2] shadow-glow transition-all duration-300 hover:-translate-y-0.5 hover:scale-105"

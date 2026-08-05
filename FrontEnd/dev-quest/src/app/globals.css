@@ -160,6 +160,10 @@
 
   * {
     border-color: var(--color-border);
+  }
+
+  html,
+  body {
     overflow-x: hidden;
   }
 
