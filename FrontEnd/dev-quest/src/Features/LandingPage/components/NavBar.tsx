@@ -17,18 +17,18 @@ export function NavbarLandingPage(){
         </Link>
 
         <div className="ml-auto flex items-center gap-3">
-          <a
+          <Link
             href="#"
-            className="rounded-lg px-5 py-2.5 text-sm font-semibold text-[#f2f2f2] transition-all duration-300 hover:scale-105 hover:text-white"
+            className="rounded-lg px-5 py-2.5 text-sm font-semibold text-[#f2f2f2] transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:text-white"
           >
             Entrar
-          </a>
-          <a
+          </Link>
+          <Link
             href="#"
-            className="rounded-lg bg-gradient-to-r from-brand-violet to-brand-blue px-5 py-2.5 text-sm font-semibold text-[#f2f2f2] shadow-glow transition-all duration-300 hover:-translate-y-0.5 hover:scale-105"
+            className="rounded-lg bg-gradient-to-r from-brand-violet to-brand-blue px-5 py-2.5 text-sm font-semibold text-[#f2f2f2] shadow-glow transition-all duration-300 hover:-translate-y-0.5"
           >
             Testar Gratuitamente
-          </a>
+          </Link>
         </div>
       </header>
     )
