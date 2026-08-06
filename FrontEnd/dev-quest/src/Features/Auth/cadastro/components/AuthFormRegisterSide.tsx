@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Bot, Code2, Map } from "lucide-react";
+import { TypewriterText } from "@/Features/Auth/login/components/TypewriterText";
 
 const features = [
   {
@@ -19,14 +20,14 @@ const features = [
   },
 ];
 
-export function AuthFormSide() {
+export function AuthFormRegisterSide() {
   return (
     <aside className="relative hidden min-h-screen overflow-hidden px-10 py-9 lg:flex xl:px-14">
-      <div className="absolute left-[-20%] top-[18%] h-[56rem] w-[56rem] rounded-full border border-[#3755ff]/20 bg-[radial-gradient(circle_at_38%_36%,rgba(101,76,255,0.24),rgba(7,9,34,0.7)_43%,rgba(0,0,0,0)_70%)] shadow-[0_0_90px_rgba(58,78,255,0.16)]" />
+      <div className="absolute left-[-30%] top-[18%] h-[56rem] w-[54rem] rounded-full border border-[#3755ff]/20 bg-[radial-gradient(circle_at_38%_36%,rgba(101,76,255,0.24),rgba(7,9,34,0.7)_43%,rgba(0,0,0,0)_70%)] shadow-[0_0_100px_rgba(58,78,255,0.46)]" />
       <div className="absolute bottom-[18%] left-[-8%] h-32 w-[55%] rounded-full bg-[#0757ff]/22 blur-3xl" />
-      <div className="absolute bottom-[22%] left-[24%] h-24 w-80 rounded-full bg-[#9b2cff]/24 blur-3xl" />
+      <div className="absolute bottom-[22%] left-[24%] h-24 w-90 rounded-full bg-[#9b2cff]/24 blur-3xl" />
 
-      <div className="relative z-10 flex min-h-full w-full max-w-[45rem] flex-col justify-between">
+      <div className="relative z-10 flex min-h-full w-full max-w-180 flex-col justify-between">
         <div className="flex items-center gap-3">
           <Image
             src="/icon/LogoSemFundo.png"
@@ -41,16 +42,39 @@ export function AuthFormSide() {
         </div>
 
         <div className="relative py-10">
-          <h1 className="max-w-[34rem] text-[clamp(3.2rem,5vw,4.75rem)] font-black leading-[0.96] text-white drop-shadow-[0_8px_22px_rgba(0,0,0,0.45)]">
-            Sua jornada
+          <h1 className="max-w-136 text-[clamp(3.2rem,5vw,4.75rem)] font-black leading-[0.96] text-white drop-shadow-[0_8px_22px_rgba(0,0,0,0.45)]">
+            <TypewriterText
+              mode="char"
+              delayPerUnit={35}
+              startDelay={0}
+              duration={420}
+              as="span"
+            >
+              Sua jornada
+            </TypewriterText>
             <br />
-            começa <span className="text-[#6847ff]">aqui.</span>
+            <TypewriterText
+              mode="char"
+              delayPerUnit={35}
+              startDelay={800}
+              duration={420}
+              as="span"
+            >
+              começa <span className="text-[#6847ff]">aqui.</span>
+            </TypewriterText>
           </h1>
 
-          <p className="mt-5 max-w-[36rem] text-[1.08rem] font-normal leading-7 text-[#c5c8d8]">
+          <TypewriterText
+            mode="word"
+            delayPerUnit={80}
+            startDelay={1600}
+            duration={500}
+            className="mt-5 block max-w-[36rem] text-[1.08rem] font-normal leading-7 text-[#c5c8d8]"
+            as="p"
+          >
             Aprenda, pratique e evolua com tutores de IA e desafios reais em um
             ambiente feito para devs.
-          </p>
+          </TypewriterText>
 
           <div className="mt-9 grid max-w-[40rem] grid-cols-3 gap-4 xl:gap-5">
             {features.map(({ icon: Icon, title, description }) => (
@@ -68,8 +92,7 @@ export function AuthFormSide() {
               </div>
             ))}
           </div>
-        </div>
-
+        </div>                                                                                 
         <p className="max-w-[33rem] text-sm leading-6 text-[#858ba3]">
           Evolua com trilhas guiadas, desafios práticos e feedback inteligente no
           seu ritmo.
