@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check, Eye, EyeOff, Lock, LogIn, Mail } from "lucide-react";
+import { Check, Eye, EyeOff, Lock, LogIn, Mail ,User} from "lucide-react";
 
 export function AuthRegisterForm() {
   const [email, setEmail] = useState("");
@@ -12,7 +12,7 @@ export function AuthRegisterForm() {
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center px-5 py-8 sm:px-8 lg:px-10 xl:px-14">
-      <section className="relative w-full max-w-[27.5rem] overflow-hidden rounded-2xl border border-white/10 bg-[#0b1024]/82 px-6 py-7 shadow-[0_28px_90px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl sm:px-8 sm:py-8">
+      <section className="relative w-full max-w-90 md:max-w-130 overflow-hidden rounded-2xl border border-white/10 bg-[#0b1024]/82 px-6 py-7 shadow-[0_28px_90px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl sm:px-8 sm:py-8">
         <div className="pointer-events-none absolute -right-28 -top-24 h-72 w-72 rounded-full bg-[#0077ff]/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-[#8f3cff]/18 blur-3xl" />
 
@@ -33,6 +33,7 @@ export function AuthRegisterForm() {
                 </label>
                 <div className="group flex h-12 items-center gap-3 rounded-lg border border-white/10 bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:border-[#7657ff] focus-within:bg-[#0d1230] focus-within:shadow-[0_0_0_3px_rgba(118,87,255,0.18)]">
                   <Mail className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+                  
                   <input
                     id="email"
                     type="email"
@@ -47,14 +48,14 @@ export function AuthRegisterForm() {
               
               <div className="flex min-w-0 flex-1 basis-1/2 flex-col">
                 <label htmlFor="email-confirmation" className="mb-2 block text-sm font-bold text-white">
-                  Confirmar e-mail
+                  Nome de Usuario
                 </label>
                 <div className="group flex h-12 items-center gap-3 rounded-lg border border-white/10 bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:border-[#7657ff] focus-within:bg-[#0d1230] focus-within:shadow-[0_0_0_3px_rgba(118,87,255,0.18)]">
-                  <Mail className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+                <User className="h-5 w-5 shrink-0" strokeWidth={1.8} />
                   <input
                     id="email-confirmation"
                     type="email"
-                    placeholder="confirme@email.com"
+                    placeholder="Usuario123"
                     className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
                     required
                   />
@@ -118,7 +119,7 @@ export function AuthRegisterForm() {
 
             <button
               type="submit"
-              className="mt-1 flex h-[3.25rem] w-full items-center justify-center gap-2 rounded-lg bg-[linear-gradient(100deg,#9d38ff_0%,#654cff_48%,#0077ff_100%)] text-base font-black text-white shadow-[0_18px_44px_rgba(0,82,255,0.28)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_58px_rgba(100,60,255,0.38)] focus:outline-none focus:ring-2 focus:ring-[#835cff]/60"
+              className="mt-1 flex h-13 w-full items-center justify-center gap-2 rounded-lg bg-[linear-gradient(100deg,#9d38ff_0%,#654cff_48%,#0077ff_100%)] text-base font-black text-white shadow-[0_18px_44px_rgba(0,82,255,0.28)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_58px_rgba(100,60,255,0.38)] focus:outline-none focus:ring-2 focus:ring-[#835cff]/60 hover:cursor-pointer"
             >
               <LogIn className="h-5 w-5" strokeWidth={2.2} />
               Entrar
