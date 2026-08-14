@@ -1,3 +1,5 @@
+using BackEnd.Data;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -24,6 +26,15 @@ builder.Services.AddCors(options =>
         }
     });
 });
+var connectString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<AppDbContext> (options =>
+{
+    options.UseNpgsql(connectString);
+    
+});
+
+
 
 
 

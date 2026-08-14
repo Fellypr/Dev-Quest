@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "xKwUUCyjMro=",
+  "dgSpecHash": "2Qf8IFtnsoU=",
   "success": true,
   "projectFilePath": "/home/fellype/Documentos/Projetos/DevQuest/DevQuestCode/BackEnd/BackEnd.csproj",
   "expectedPackageFiles": [
@@ -23,6 +23,8 @@
     "/home/fellype/.nuget/packages/microsoft.visualstudio.solutionpersistence/1.0.52/microsoft.visualstudio.solutionpersistence.1.0.52.nupkg.sha512",
     "/home/fellype/.nuget/packages/mono.texttemplating/3.0.0/mono.texttemplating.3.0.0.nupkg.sha512",
     "/home/fellype/.nuget/packages/newtonsoft.json/13.0.4/newtonsoft.json.13.0.4.nupkg.sha512",
+    "/home/fellype/.nuget/packages/npgsql/10.0.0/npgsql.10.0.0.nupkg.sha512",
+    "/home/fellype/.nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.0/npgsql.entityframeworkcore.postgresql.10.0.0.nupkg.sha512",
     "/home/fellype/.nuget/packages/system.codedom/6.0.0/system.codedom.6.0.0.nupkg.sha512",
     "/home/fellype/.nuget/packages/system.composition/9.0.0/system.composition.9.0.0.nupkg.sha512",
     "/home/fellype/.nuget/packages/system.composition.attributedmodel/9.0.0/system.composition.attributedmodel.9.0.0.nupkg.sha512",
@@ -35,7 +37,7 @@
     {
       "code": "NU1903",
       "level": "Warning",
-      "message": "O pacote 'Microsoft.OpenApi' 2.0.0 tem uma alta vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc",
+      "message": "Package 'Microsoft.OpenApi' 2.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc",
       "projectPath": "/home/fellype/Documentos/Projetos/DevQuest/DevQuestCode/BackEnd/BackEnd.csproj",
       "warningLevel": 1,
       "filePath": "/home/fellype/Documentos/Projetos/DevQuest/DevQuestCode/BackEnd/BackEnd.csproj",
