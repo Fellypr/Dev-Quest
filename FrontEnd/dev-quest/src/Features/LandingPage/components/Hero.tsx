@@ -6,7 +6,7 @@ import Link from "next/link";
 export function Hero(){
     const [showCta, setShowCta] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
-    const urlVideo = "/Video/AnimacaoHero2.mp4";
+    const urlVideo = "/Video/IntroDevQuest.mp4";
 
     const handleTimeUpdate = () => {
     const video = videoRef.current;
