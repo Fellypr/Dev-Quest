@@ -109,7 +109,7 @@ export function AuthLoginForm() {
 
           <p className="mt-7 text-center text-sm font-medium text-[#aeb1c1]">
             Ainda não tem uma conta?{" "}
-            <Link href="#" className="font-bold text-[#9b85ff] transition hover:text-[#c2b6ff]">
+            <Link href="Cadastro_De_Usuario" className="font-bold text-[#9b85ff] transition hover:text-[#c2b6ff]">
               Criar conta
             </Link>
           </p>

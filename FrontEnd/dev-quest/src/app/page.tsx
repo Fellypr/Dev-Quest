@@ -4,7 +4,7 @@ import Image from "next/image";
 export default function LandingPage() {
   return (
     <main className="bg-background">
-      <header className="w-screen absolute">
+      <header className="fixed left-0 top-0 z-50 w-full">
         <NavbarLandingPage/>
       </header>
       <section className=" w-screen h-screen">

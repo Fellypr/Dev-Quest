@@ -1,14 +1,40 @@
 
-import Link from "next/link";
+"use client";
 
-export function NavbarLandingPage(){
-    return(
-        <header className="relative z-10 mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-6 py-6">
+import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+export function NavbarLandingPage() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 24);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <header
+      className={`relative z-10 w-full h-20 transition-all duration-300 ${
+        scrolled
+          ? "border-b border-white/10 bg-background/85 shadow-lg backdrop-blur-xl"
+          : "bg-transparent"
+      }`}
+    >
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-6 py-6">
         <Link href="/" className="flex items-center gap-0.5">
-          <img
+          <Image
             src="/icon/LogoSemFundo.png"
             alt="Logo DevQuest"
-            className="h-16 w-16 object-contain"
+            width={64}
+            height={64}
+            className="h-10 w-10 object-contain"
           />
 
           <span className="text-2xl font-bold text-white">
@@ -30,6 +56,7 @@ export function NavbarLandingPage(){
             Testar Gratuitamente
           </Link>
         </div>
-      </header>
-    )
+      </div>
+    </header>
+  );
 }

@@ -127,9 +127,9 @@ export function AuthRegisterForm() {
           </form>
 
           <p className="mt-7 text-center text-sm font-medium text-[#aeb1c1]">
-            Ainda não tem uma conta?{" "}
-            <Link href="#" className="font-bold text-[#9b85ff] transition hover:text-[#c2b6ff]">
-              Criar conta
+            Já tem uma conta?{" "}
+            <Link href="/Login" className="font-bold text-[#9b85ff] transition hover:text-[#c2b6ff]">
+              Login
             </Link>
           </p>
         </div>
