@@ -49,7 +49,7 @@ export function Hero(){
             Ver Desafios
           </Link>
           <Link
-            href="#"
+            href="Cadastro_De_Usuario"
             className="rounded-lg border border-border bg-card/60 px-7 py-3 text-sm font-semibold text-[#f2f2f2] backdrop-blur transition-all duration-300 hover:scale-105 hover:bg-card"
           >
             Começar Gratuitamente
