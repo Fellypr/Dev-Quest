@@ -3,7 +3,7 @@ using BackEnd.dtos;
 using BackEnd.interfaces;
 using BackEnd.Models;
 using Microsoft.EntityFrameworkCore;
-
+using BCryptNet = BCrypt.Net.BCrypt;
 namespace BackEnd.services
 {
     public class AuthService : IAuth
@@ -15,6 +15,7 @@ namespace BackEnd.services
             _context = context;
         }
 
+        
         public async Task<ApiResponse<UserResponse>> RegisterUser(UserDto userDto)
         {
             var emailExists = await _context.AppUsers.AnyAsync(user => user.Email == userDto.Email);
@@ -27,12 +28,13 @@ namespace BackEnd.services
                     Mensagem = "E-mail já cadastrado"
                 };
             }
+            string passwordHash = BCryptNet.HashPassword(userDto.Password);
 
             var user = new Users
             {
                 UserName = userDto.UserName,
                 Email = userDto.Email,
-                Password = userDto.Password
+                Password = passwordHash
             };
 
             _context.AppUsers.Add(user);

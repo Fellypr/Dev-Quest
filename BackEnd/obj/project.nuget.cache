@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "PM6LNKLS4YY=",
+  "dgSpecHash": "Ro15KAux1jQ=",
   "success": true,
   "projectFilePath": "/home/fellype/Documentos/Projetos/DevQuest/DevQuestCode/BackEnd/BackEnd.csproj",
   "expectedPackageFiles": [
+    "/home/fellype/.nuget/packages/bcrypt.net-next/4.2.0/bcrypt.net-next.4.2.0.nupkg.sha512",
     "/home/fellype/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/fellype/.nuget/packages/microsoft.aspnetcore.openapi/10.0.9/microsoft.aspnetcore.openapi.10.0.9.nupkg.sha512",
     "/home/fellype/.nuget/packages/microsoft.build.framework/18.0.2/microsoft.build.framework.18.0.2.nupkg.sha512",
