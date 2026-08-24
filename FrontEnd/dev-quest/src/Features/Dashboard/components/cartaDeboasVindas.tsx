@@ -1,5 +1,5 @@
 const mascotImage =
-  "https://www.figma.com/api/mcp/asset/f2d472b5-7cd2-4b2a-b172-e150cf031702.png";
+  "/images/Roadmaps_mascot_art.png";
 
 export function CartaDeBoasVindasDashboard() {
   return (
