@@ -1,5 +1,11 @@
 
-export function CartaDeConviteRoadmap(){
+type CartaDeConviteRoadmapProps = {
+  onCreateRoadmap: () => void;
+};
+
+export function CartaDeConviteRoadmap({
+  onCreateRoadmap,
+}: CartaDeConviteRoadmapProps){
     return(
       <section className="flex w-full items-center justify-between gap-4 overflow-hidden rounded-[13px] border border-[#161f3b] bg-[#040711] px-[18px] py-[14px] sm:pr-[22px]">
         <div className="flex min-w-0 items-center gap-[14px]">
@@ -22,6 +28,7 @@ export function CartaDeConviteRoadmap(){
 
         <button
           type="button"
+          onClick={onCreateRoadmap}
           className="flex h-10 w-[146px] shrink-0 items-center justify-center rounded-lg border border-[#5e1fb2] text-xs font-semibold text-[#9647ff] transition-colors hover:border-[#9647ff] hover:bg-[#140525] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9647ff]"
         >
           Criar roadmap

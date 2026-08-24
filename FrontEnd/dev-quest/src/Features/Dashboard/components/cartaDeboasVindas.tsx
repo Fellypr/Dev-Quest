@@ -1,7 +1,13 @@
 const mascotImage =
   "/images/Roadmaps_mascot_art.png";
 
-export function CartaDeBoasVindasDashboard() {
+type CartaDeBoasVindasDashboardProps = {
+  onCreateRoadmap: () => void;
+};
+
+export function CartaDeBoasVindasDashboard({
+  onCreateRoadmap,
+}: CartaDeBoasVindasDashboardProps) {
   return (
     <section className="relative flex min-h-54 w-full items-center overflow-hidden rounded-xl border border-[rgba(48,14,105,0.9)] bg-[linear-gradient(90deg,#08041f_0%,#02030f_42%,#02020b_64%,#0e021d_60%)] pl-10 sm:pl-11.5">
       <div className="relative z-20 flex flex-col items-start gap-3.5">
@@ -17,6 +23,7 @@ export function CartaDeBoasVindasDashboard() {
 
         <button
           type="button"
+          onClick={onCreateRoadmap}
           className="flex h-12 w-57 items-center justify-between rounded-[10px] bg-linear-to-r from-[#6114ff] to-[#2b38ff] pl-5.5 pr-4.5 text-white transition duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8d6cff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08041f] cursor-pointer"
         >
           <span className="text-sm font-semibold">Criar novo roadmap</span>

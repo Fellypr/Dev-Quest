@@ -76,7 +76,7 @@ export function SideBar() {
 
         <section
           aria-label="Perfil do jogador"
-          className="flex h-[180px] w-[190px] shrink-0 flex-col gap-[66px] overflow-hidden rounded-xl border border-[#1a2442] bg-[#050914] p-[14px]"
+          className="flex h-auto w-[190px] shrink-0 flex-col gap-[66px] overflow-hidden rounded-xl border border-[#1a2442] bg-[#050914] p-[14px]"
         >
           <div className="flex items-center gap-2.5 overflow-hidden">
             <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-[#3d47ff] bg-[#0f0d2e]">
