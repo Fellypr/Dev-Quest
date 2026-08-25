@@ -1,14 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import {useForm} from "react-hook-form" 
 import Link from "next/link";
 import { Check, Eye, EyeOff, Lock, LogIn, Mail ,User} from "lucide-react";
 
+import {RegisterAuth} from "../../types/Auth.Type"
+
 export function AuthRegisterForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState:{errors,isSubmitting,isDirty}
+  } = useForm<RegisterAuth>()
   const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+
+  const submit = (dados: RegisterAuth) => {
+    if(dados.Email == "fellype29kennedemil@gmail.com"){
+      setError("Email",{message: 'Este Email ja esta sendo utilizado'})
+      return;
+    }
+    console.log(dados)
+  }
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center px-5 py-8 sm:px-8 lg:px-10 xl:px-14">
@@ -25,7 +40,7 @@ export function AuthRegisterForm() {
             Comece sua jornada de aprendizado agora mesmo.
           </p>
 
-          <form className="mt-8 space-y-5">
+          <form className="mt-8 space-y-5" onSubmit={handleSubmit(submit)}>
             <div className="flex w-full gap-4">
               <div className="flex min-w-0 flex-1 basis-1/2 flex-col">
                 <label htmlFor="email" className="mb-2 block text-sm font-bold text-white">
@@ -36,12 +51,9 @@ export function AuthRegisterForm() {
                   
                   <input
                     id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    {...register("Email" ,{required: true})}
                     placeholder="seu@email.com"
                     className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
-                    required
                   />
                 </div>
               </div>
@@ -54,10 +66,10 @@ export function AuthRegisterForm() {
                 <User className="h-5 w-5 shrink-0" strokeWidth={1.8} />
                   <input
                     id="email-confirmation"
-                    type="email"
                     placeholder="Usuario123"
                     className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
-                    required
+                    {...register("FirtName",{required:true})}
+                    {...errors.FirtName && <p>{errors.Email?.message}</p>}
                   />
                 </div>
               </div>
@@ -72,11 +84,9 @@ export function AuthRegisterForm() {
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="Digite sua senha"
                   className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
-                  required
+                  {...register("Password",{required:true, minLength: 4, maxLength: 20})}
                 />
                 <button
                   type="button"
@@ -108,21 +118,15 @@ export function AuthRegisterForm() {
                 </span>
                 Lembrar de mim
               </label>
-
-              <Link
-                href="#"
-                className="shrink-0 text-sm font-bold text-[#9b85ff] transition hover:text-[#c2b6ff]"
-              >
-                Esqueci a senha
-              </Link>
             </div>
 
             <button
               type="submit"
+              disabled= {isSubmitting || isDirty}
               className="mt-1 flex h-13 w-full items-center justify-center gap-2 rounded-lg bg-[linear-gradient(100deg,#9d38ff_0%,#654cff_48%,#0077ff_100%)] text-base font-black text-white shadow-[0_18px_44px_rgba(0,82,255,0.28)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_58px_rgba(100,60,255,0.38)] focus:outline-none focus:ring-2 focus:ring-[#835cff]/60 hover:cursor-pointer"
             >
               <LogIn className="h-5 w-5" strokeWidth={2.2} />
-              Entrar
+              {isSubmitting ? "Cadastrando..." : "Cadastrar"}
             </button>
           </form>
 
