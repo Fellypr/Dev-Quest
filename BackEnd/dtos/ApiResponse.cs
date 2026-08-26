@@ -9,7 +9,7 @@ namespace BackEnd.dtos
     {
         public bool Sucesso {get;set;}
         public string Mensagem { get; set; } = string.Empty;
-        public T Dados {get;set;}
+        public T? Dados {get;set;}
 
 
         public static ApiResponse<T> Ok (T dados , string mensagem = "Operação realizada com sucesso")
