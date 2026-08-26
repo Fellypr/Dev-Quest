@@ -21,7 +21,7 @@ namespace BackEnd.dtos
                 Dados = dados
             };
         }
-        public static ApiResponse<T> Erro(T dados,string mensagem = "Erro de operação")
+        public static ApiResponse<T> Erro(string mensagem = "Erro de operação")
         {
             return new ApiResponse<T>
             {
