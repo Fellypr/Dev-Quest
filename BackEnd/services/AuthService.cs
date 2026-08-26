@@ -58,14 +58,14 @@ namespace BackEnd.services
             {
                 return ApiResponse<UserResponse>.Erro("Usuario não encontrado");
             }
-            if (!BCryptNet.Verify(userExist.Password ,userDto.Password))
+            if (!BCryptNet.Verify(userDto.Password,userExist.Password))
             {
                 return ApiResponse<UserResponse>.Erro("Usuário ou senha incorretos");
             }
 
             var userResponse = new UserResponse{
-              Email = userDto.Email,
-              UserName = userDto.UserName  
+              Email = userExist.Email,
+              UserName = userExist.UserName  
             };
 
             return ApiResponse<UserResponse>.Ok(userResponse,$"Bem vindo de volta {userResponse.UserName}");
