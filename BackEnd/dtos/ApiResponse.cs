@@ -11,6 +11,7 @@ namespace BackEnd.dtos
         public string Mensagem { get; set; } = string.Empty;
         public T Dados {get;set;}
 
+
         public static ApiResponse<T> Ok (T dados , string mensagem = "Operação realizada com sucesso")
         {
             return new ApiResponse<T>
@@ -19,6 +20,16 @@ namespace BackEnd.dtos
                 Mensagem = mensagem,
                 Dados = dados
             };
+        }
+        public static ApiResponse<T> Erro(T dados,string mensagem = "Erro de operação")
+        {
+            return new ApiResponse<T>
+            {
+              Sucesso = false,
+              Mensagem = mensagem,
+              Dados = default  
+            };
+            
         }
         
     }
