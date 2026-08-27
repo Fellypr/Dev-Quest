@@ -1,29 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import {useForm} from "react-hook-form" 
+import { useForm } from "react-hook-form";
 import Link from "next/link";
-import { Check, Eye, EyeOff, Lock, LogIn, Mail ,User} from "lucide-react";
+import { Check, Eye, EyeOff, Lock, LogIn, Mail, User } from "lucide-react";
 
-import {RegisterAuth} from "../../types/Auth.Type"
+import { RegisterAuth } from "../../types/Auth.Type";
 
 export function AuthRegisterForm() {
   const {
     register,
     handleSubmit,
     setError,
-    formState:{errors,isSubmitting,isDirty}
-  } = useForm<RegisterAuth>()
+    formState: { errors, isSubmitting, isDirty },
+  } = useForm<RegisterAuth>();
   const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
   const submit = (dados: RegisterAuth) => {
-    if(dados.Email == "fellype29kennedemil@gmail.com"){
-      setError("Email",{message: 'Este Email ja esta sendo utilizado'})
+    if (dados.Email == "fellype29kennedemil@gmail.com") {
+      setError("Email", { message: "Este Email ja esta sendo utilizado" });
       return;
     }
-    console.log(dados)
-  }
+    console.log(dados);
+  };
+
+
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center px-5 py-8 sm:px-8 lg:px-10 xl:px-14">
@@ -35,7 +37,7 @@ export function AuthRegisterForm() {
           <h2 className="text-[1.75rem] font-black leading-tight text-white sm:text-[2rem]">
             Criar sua conta
           </h2>
-        
+
           <p className="mt-3 text-sm leading-6 text-[#b8bdd2] sm:text-base">
             Comece sua jornada de aprendizado agora mesmo.
           </p>
@@ -43,40 +45,56 @@ export function AuthRegisterForm() {
           <form className="mt-8 space-y-5" onSubmit={handleSubmit(submit)}>
             <div className="flex w-full gap-4">
               <div className="flex min-w-0 flex-1 basis-1/2 flex-col">
-                <label htmlFor="email" className="mb-2 block text-sm font-bold text-white">
+                <label
+                  htmlFor="email"
+                  className="mb-2 block text-sm font-bold text-white"
+                >
                   E-mail
                 </label>
                 <div className="group flex h-12 items-center gap-3 rounded-lg border border-white/10 bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:border-[#7657ff] focus-within:bg-[#0d1230] focus-within:shadow-[0_0_0_3px_rgba(118,87,255,0.18)]">
                   <Mail className="h-5 w-5 shrink-0" strokeWidth={1.8} />
-                  
+
                   <input
                     id="email"
-                    {...register("Email" ,{required: true})}
+                    {...register("Email")}
                     placeholder="seu@email.com"
                     className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
                   />
+                  {errors.Email && (
+                    <p>{errors.Email.message}</p>
+                  )}
                 </div>
               </div>
-              
+
               <div className="flex min-w-0 flex-1 basis-1/2 flex-col">
-                <label htmlFor="email-confirmation" className="mb-2 block text-sm font-bold text-white">
+                <label
+                  htmlFor="email-confirmation"
+                  className="mb-2 block text-sm font-bold text-white"
+                >
                   Nome de Usuario
                 </label>
                 <div className="group flex h-12 items-center gap-3 rounded-lg border border-white/10 bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:border-[#7657ff] focus-within:bg-[#0d1230] focus-within:shadow-[0_0_0_3px_rgba(118,87,255,0.18)]">
-                <User className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+                  <User className="h-5 w-5 shrink-0" strokeWidth={1.8} />
                   <input
                     id="email-confirmation"
                     placeholder="Usuario123"
                     className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
-                    {...register("FirtName",{required:true})}
-                    {...errors.FirtName && <p>{errors.Email?.message}</p>}
+                    {...register("FirtName")}
                   />
+                  {errors.FirtName && (
+                    <p className="mt-1 text-sm text-red-400">
+                      {errors.FirtName.message}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-2 block text-sm font-bold text-white">
+              <label
+                htmlFor="password"
+                className="mb-2 block text-sm font-bold text-white"
+              >
                 Senha
               </label>
               <div className="group flex h-12 items-center gap-3 rounded-lg border border-white/10 bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:border-[#7657ff] focus-within:bg-[#0d1230] focus-within:shadow-[0_0_0_3px_rgba(118,87,255,0.18)]">
@@ -86,7 +104,7 @@ export function AuthRegisterForm() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Digite sua senha"
                   className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
-                  {...register("Password",{required:true, minLength: 4, maxLength: 20})}
+                  {...register("Password")}
                 />
                 <button
                   type="button"
@@ -104,7 +122,10 @@ export function AuthRegisterForm() {
             </div>
 
             <div className="flex items-center justify-between gap-3">
-              <label htmlFor="remember" className="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-[#b9bbc9]">
+              <label
+                htmlFor="remember"
+                className="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-[#b9bbc9]"
+              >
                 <span className="relative grid h-5 w-5 place-items-center">
                   <input
                     id="remember"
@@ -114,7 +135,10 @@ export function AuthRegisterForm() {
                     className="peer sr-only"
                   />
                   <span className="h-5 w-5 rounded-md border border-white/15 bg-[#10142b] transition peer-checked:border-[#6b4cff] peer-checked:bg-[#654cff]" />
-                  <Check className="pointer-events-none absolute h-3.5 w-3.5 text-white opacity-0 transition peer-checked:opacity-100" strokeWidth={3} />
+                  <Check
+                    className="pointer-events-none absolute h-3.5 w-3.5 text-white opacity-0 transition peer-checked:opacity-100"
+                    strokeWidth={3}
+                  />
                 </span>
                 Lembrar de mim
               </label>
@@ -122,7 +146,7 @@ export function AuthRegisterForm() {
 
             <button
               type="submit"
-              disabled= {isSubmitting || isDirty}
+              disabled={isSubmitting}
               className="mt-1 flex h-13 w-full items-center justify-center gap-2 rounded-lg bg-[linear-gradient(100deg,#9d38ff_0%,#654cff_48%,#0077ff_100%)] text-base font-black text-white shadow-[0_18px_44px_rgba(0,82,255,0.28)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_58px_rgba(100,60,255,0.38)] focus:outline-none focus:ring-2 focus:ring-[#835cff]/60 hover:cursor-pointer"
             >
               <LogIn className="h-5 w-5" strokeWidth={2.2} />
@@ -132,7 +156,10 @@ export function AuthRegisterForm() {
 
           <p className="mt-7 text-center text-sm font-medium text-[#aeb1c1]">
             Já tem uma conta?{" "}
-            <Link href="/Login" className="font-bold text-[#9b85ff] transition hover:text-[#c2b6ff]">
+            <Link
+              href="/Login"
+              className="font-bold text-[#9b85ff] transition hover:text-[#c2b6ff]"
+            >
               Login
             </Link>
           </p>
