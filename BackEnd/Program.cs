@@ -1,5 +1,6 @@
 using BackEnd.Data;
 using BackEnd.interfaces;
+using BackEnd.Middlewares;
 using BackEnd.services;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
@@ -51,6 +52,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("AllowFrontend");
 app.MapControllers();
 app.Run();
