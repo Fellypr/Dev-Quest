@@ -19,9 +19,21 @@ namespace BackEnd.controller
             var response = await _auth.RegisterUser(user);
             if (!response.Sucesso)
             {
-                BadRequest(response);
+               return BadRequest(response);
             }
             return StatusCode(201, response);
+        }
+
+        [HttpPost("login")]
+
+        public async Task<IActionResult> Authenticate (UserDto userDto)
+        {
+            var response = await _auth.Authenticate(userDto);
+            if (!response.Sucesso)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
         }
 
     }

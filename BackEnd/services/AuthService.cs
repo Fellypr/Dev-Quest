@@ -50,5 +50,26 @@ namespace BackEnd.services
 
             return ApiResponse<UserResponse>.Ok(userResponse, "Usuário cadastrado com sucesso");
         }
+        public async Task<ApiResponse<UserResponse>> Authenticate(UserDto userDto)
+        {
+            var userExist = await _context.AppUsers.FirstOrDefaultAsync(banco => banco.Email == userDto.Email || banco.UserName == userDto.UserName);
+
+            if(userExist == null)
+            {
+                return ApiResponse<UserResponse>.Erro("Usuario não encontrado");
+            }
+            if (!BCryptNet.Verify(userDto.Password,userExist.Password))
+            {
+                return ApiResponse<UserResponse>.Erro("Usuário ou senha incorretos");
+            }
+
+            var userResponse = new UserResponse{
+              Email = userExist.Email,
+              UserName = userExist.UserName  
+            };
+
+            return ApiResponse<UserResponse>.Ok(userResponse,$"Bem vindo de volta {userResponse.UserName}");
+            
+        }
     }
 }
