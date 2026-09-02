@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using BCryptNet = BCrypt.Net.BCrypt;
 namespace BackEnd.services
 {
-    public class AuthService : IAuth
+    public class AuthService : IAuthService
     {
         private readonly AppDbContext _context;
 

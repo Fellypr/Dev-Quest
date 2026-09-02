@@ -1,7 +1,7 @@
 using BackEnd.dtos;
 namespace BackEnd.interfaces
 {
-    public interface IAuth
+    public interface IAuthService
     {
         Task<ApiResponse<UserResponse>> RegisterUser (UserDto userDto); 
         Task<ApiResponse<UserResponse>> Authenticate (UserDto userDto);

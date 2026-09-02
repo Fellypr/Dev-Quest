@@ -1,6 +1,8 @@
 using BackEnd.Data;
 using BackEnd.interfaces;
+
 using BackEnd.services;
+using BackEnd.Configuration;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,7 +40,11 @@ builder.Services.AddDbContext<AppDbContext> (options =>
     
 });
 
-builder.Services.AddScoped<IAuth, AuthService>();
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("Jwt")
+);
+
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 
 
@@ -51,6 +57,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
+// app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("AllowFrontend");
 app.MapControllers();
 app.Run();
