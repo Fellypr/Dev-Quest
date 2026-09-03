@@ -12,20 +12,26 @@ export function AuthRegisterForm() {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting },
   } = useForm<RegisterAuth>();
   const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+
+  const inputWrapperClass = (hasError?: boolean) =>
+    `group flex h-12 items-center gap-3 rounded-lg border bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:bg-[#0d1230] ${
+      hasError
+        ? "border-red-500/70 focus-within:border-red-400 focus-within:shadow-[0_0_0_3px_rgba(248,113,113,0.16)]"
+        : "border-white/10 focus-within:border-[#7657ff] focus-within:shadow-[0_0_0_3px_rgba(118,87,255,0.18)]"
+    }`;
+
+  const errorMessageClass = "mt-2 text-xs font-semibold text-red-400";
 
   const submit = (dados: RegisterAuth) => {
     if (dados.Email == "fellype29kennedemil@gmail.com") {
       setError("Email", { message: "Este Email ja esta sendo utilizado" });
       return;
     }
-    console.log(dados);
   };
-
-
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center px-5 py-8 sm:px-8 lg:px-10 xl:px-14">
@@ -43,7 +49,7 @@ export function AuthRegisterForm() {
           </p>
 
           <form className="mt-8 space-y-5" onSubmit={handleSubmit(submit)}>
-            <div className="flex w-full gap-4">
+            <div className="flex w-full flex-col gap-4 md:flex-row">
               <div className="flex min-w-0 flex-1 basis-1/2 flex-col">
                 <label
                   htmlFor="email"
@@ -51,19 +57,30 @@ export function AuthRegisterForm() {
                 >
                   E-mail
                 </label>
-                <div className="group flex h-12 items-center gap-3 rounded-lg border border-white/10 bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:border-[#7657ff] focus-within:bg-[#0d1230] focus-within:shadow-[0_0_0_3px_rgba(118,87,255,0.18)]">
+                <div className={inputWrapperClass(!!errors.Email)}>
                   <Mail className="h-5 w-5 shrink-0" strokeWidth={1.8} />
 
                   <input
                     id="email"
-                    {...register("Email")}
+                    type="email"
+                    aria-invalid={!!errors.Email}
+                    aria-describedby={errors.Email ? "email-error" : undefined}
                     placeholder="seu@email.com"
                     className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
+                    {...register("Email", {
+                      required: "O e-mail é obrigatório.",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Digite um e-mail válido.",
+                      },
+                    })}
                   />
-                  {errors.Email && (
-                    <p>{errors.Email.message}</p>
-                  )}
                 </div>
+                {errors.Email && (
+                  <p id="email-error" className={errorMessageClass}>
+                    {errors.Email.message}
+                  </p>
+                )}
               </div>
 
               <div className="flex min-w-0 flex-1 basis-1/2 flex-col">
@@ -73,20 +90,31 @@ export function AuthRegisterForm() {
                 >
                   Nome de Usuario
                 </label>
-                <div className="group flex h-12 items-center gap-3 rounded-lg border border-white/10 bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:border-[#7657ff] focus-within:bg-[#0d1230] focus-within:shadow-[0_0_0_3px_rgba(118,87,255,0.18)]">
+                <div className={inputWrapperClass(!!errors.FirtName)}>
                   <User className="h-5 w-5 shrink-0" strokeWidth={1.8} />
                   <input
                     id="email-confirmation"
+                    aria-invalid={!!errors.FirtName}
+                    aria-describedby={
+                      errors.FirtName ? "username-error" : undefined
+                    }
                     placeholder="Usuario123"
                     className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
-                    {...register("FirtName")}
+                    {...register("FirtName", {
+                      required: "O nome de usuário é obrigatório.",
+                      minLength: {
+                        value: 3,
+                        message:
+                          "O nome de usuário deve conter pelo menos 3 caracteres.",
+                      },
+                    })}
                   />
-                  {errors.FirtName && (
-                    <p className="mt-1 text-sm text-red-400">
-                      {errors.FirtName.message}
-                    </p>
-                  )}
                 </div>
+                {errors.FirtName && (
+                  <p id="username-error" className={errorMessageClass}>
+                    {errors.FirtName.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -97,14 +125,24 @@ export function AuthRegisterForm() {
               >
                 Senha
               </label>
-              <div className="group flex h-12 items-center gap-3 rounded-lg border border-white/10 bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:border-[#7657ff] focus-within:bg-[#0d1230] focus-within:shadow-[0_0_0_3px_rgba(118,87,255,0.18)]">
+              <div className={inputWrapperClass(!!errors.Password)}>
                 <Lock className="h-5 w-5 shrink-0" strokeWidth={1.8} />
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  aria-invalid={!!errors.Password}
+                  aria-describedby={
+                    errors.Password ? "password-error" : undefined
+                  }
                   placeholder="Digite sua senha"
                   className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
-                  {...register("Password")}
+                  {...register("Password", {
+                    required: "A senha é obrigatória.",
+                    minLength: {
+                      value: 3,
+                      message: "A senha deve conter pelo menos 3 caracteres.",
+                    },
+                  })}
                 />
                 <button
                   type="button"
@@ -119,6 +157,11 @@ export function AuthRegisterForm() {
                   )}
                 </button>
               </div>
+              {errors.Password && (
+                <p id="password-error" className={errorMessageClass}>
+                  {errors.Password.message}
+                </p>
+              )}
             </div>
 
             <div className="flex items-center justify-between gap-3">
