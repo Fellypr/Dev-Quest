@@ -2,10 +2,15 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import Link from "next/link";
 import { Check, Eye, EyeOff, Lock, LogIn, Mail, User } from "lucide-react";
 
-import { RegisterAuth } from "../../types/Auth.Type";
+import {
+  userRegistrationSchema,
+  UserRegister,
+} from "../../schemas/cadastrarUsuario.schema";
 
 export function AuthRegisterForm() {
   const {
@@ -13,7 +18,9 @@ export function AuthRegisterForm() {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterAuth>();
+  } = useForm<UserRegister>({
+    resolver: zodResolver(userRegistrationSchema),
+  });
   const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -26,7 +33,7 @@ export function AuthRegisterForm() {
 
   const errorMessageClass = "mt-2 text-xs font-semibold text-red-400";
 
-  const submit = (dados: RegisterAuth) => {
+  const submit = (dados: UserRegister) => {
     if (dados.Email == "fellype29kennedemil@gmail.com") {
       setError("Email", { message: "Este Email ja esta sendo utilizado" });
       return;
@@ -67,13 +74,7 @@ export function AuthRegisterForm() {
                     aria-describedby={errors.Email ? "email-error" : undefined}
                     placeholder="seu@email.com"
                     className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
-                    {...register("Email", {
-                      required: "O e-mail é obrigatório.",
-                      pattern: {
-                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                        message: "Digite um e-mail válido.",
-                      },
-                    })}
+                    {...register("Email")}
                   />
                 </div>
                 {errors.Email && (
@@ -100,14 +101,7 @@ export function AuthRegisterForm() {
                     }
                     placeholder="Usuario123"
                     className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
-                    {...register("FirtName", {
-                      required: "O nome de usuário é obrigatório.",
-                      minLength: {
-                        value: 3,
-                        message:
-                          "O nome de usuário deve conter pelo menos 3 caracteres.",
-                      },
-                    })}
+                    {...register("FirtName")}
                   />
                 </div>
                 {errors.FirtName && (
@@ -136,13 +130,7 @@ export function AuthRegisterForm() {
                   }
                   placeholder="Digite sua senha"
                   className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
-                  {...register("Password", {
-                    required: "A senha é obrigatória.",
-                    minLength: {
-                      value: 3,
-                      message: "A senha deve conter pelo menos 3 caracteres.",
-                    },
-                  })}
+                  {...register("Password")}
                 />
                 <button
                   type="button"
