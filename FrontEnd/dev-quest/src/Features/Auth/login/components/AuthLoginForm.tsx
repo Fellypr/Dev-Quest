@@ -5,10 +5,7 @@ import Link from "next/link";
 import { Check, Eye, EyeOff, Lock, LogIn, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  userLoginSchema,
-  userLoginType,
-} from "../../schemas/userLogin.schema"
+import { userLoginSchema, userLoginType } from "../../schemas/userLogin.schema";
 export function AuthLoginForm() {
   const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,7 +16,7 @@ export function AuthLoginForm() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<userLoginType>({
-    resolver: zodResolver(userLoginSchema)
+    resolver: zodResolver(userLoginSchema),
   });
 
   const inputWrapperClass = (hasError?: boolean) =>
@@ -31,12 +28,14 @@ export function AuthLoginForm() {
 
   const errorMessageClass = "mt-2 text-xs font-semibold text-red-400";
 
-  const submit = (dados:userLoginType) =>{
-    if(dados.Email === "fellype29kennedemil@gmail.com")
-    {
-      setError("Email" , {message: "Este email ja esta sendo usado"})
-    }
-  }
+  const submit = (dados: userLoginType) => {
+    setTimeout(() => {
+      if (dados.Email === "fellype29kennedemil@gmail.com") {
+        setError("Email", { message: "Este email ja esta sendo usado" });
+      }
+      return;
+    }, 5000);
+  };
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center px-5 py-8 sm:px-8 lg:px-10 xl:px-14">
@@ -48,17 +47,20 @@ export function AuthLoginForm() {
           <h2 className="text-[1.75rem] font-black leading-tight text-white sm:text-[2rem]">
             Bem-vindo de volta
           </h2>
-        
+
           <p className="mt-3 text-sm leading-6 text-[#b8bdd2] sm:text-base">
             Entre na sua conta para continuar sua jornada.
           </p>
 
-          <form className="mt-8 space-y-5" onSubmit={handleSubmit(submit)} >
+          <form className="mt-8 space-y-5" onSubmit={handleSubmit(submit)}>
             <div>
-              <label htmlFor="email" className="mb-2 block text-sm font-bold text-white">
+              <label
+                htmlFor="email"
+                className="mb-2 block text-sm font-bold text-white"
+              >
                 E-mail
               </label>
-              <div className={inputWrapperClass(!!errors.Password)}>
+              <div className={inputWrapperClass(!!errors.Email)}>
                 <Mail className="h-5 w-5 shrink-0" strokeWidth={1.8} />
                 <input
                   id="email"
@@ -68,16 +70,19 @@ export function AuthLoginForm() {
                   required
                   {...register("Email")}
                 />
-                {errors.Email && (
-                  <p id="email-error" className={errorMessageClass}>
-                    {errors.Email.message}
-                  </p>
-                )}
               </div>
+              {errors.Email && (
+                <p id="email-error" className={errorMessageClass}>
+                  {errors.Email.message}
+                </p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-2 block text-sm font-bold text-white">
+              <label
+                htmlFor="password"
+                className="mb-2 block text-sm font-bold text-white"
+              >
                 Senha
               </label>
               <div className={inputWrapperClass(!!errors.Password)}>
@@ -86,7 +91,7 @@ export function AuthLoginForm() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Digite sua senha"
-                  className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
+                  className="h-full w-full flex-1 bg-transparent text-sm font-medium text-white outline-none placeholder:text-[#81879c]"
                   {...register("Password")}
                 />
                 <button
@@ -101,16 +106,19 @@ export function AuthLoginForm() {
                     <Eye className="h-5 w-5" strokeWidth={1.8} />
                   )}
                 </button>
-                {errors.Password && (
+              </div>
+              {errors.Password && (
                 <p id="password-error" className={errorMessageClass}>
                   {errors.Password.message}
                 </p>
               )}
-              </div>
             </div>
 
             <div className="flex items-center justify-between gap-3">
-              <label htmlFor="remember" className="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-[#b9bbc9]">
+              <label
+                htmlFor="remember"
+                className="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-[#b9bbc9]"
+              >
                 <span className="relative grid h-5 w-5 place-items-center">
                   <input
                     id="remember"
@@ -120,7 +128,10 @@ export function AuthLoginForm() {
                     className="peer sr-only"
                   />
                   <span className="h-5 w-5 rounded-md border border-white/15 bg-[#10142b] transition peer-checked:border-[#6b4cff] peer-checked:bg-[#654cff]" />
-                  <Check className="pointer-events-none absolute h-3.5 w-3.5 text-white opacity-0 transition peer-checked:opacity-100" strokeWidth={3} />
+                  <Check
+                    className="pointer-events-none absolute h-3.5 w-3.5 text-white opacity-0 transition peer-checked:opacity-100"
+                    strokeWidth={3}
+                  />
                 </span>
                 Lembrar de mim
               </label>
@@ -136,17 +147,19 @@ export function AuthLoginForm() {
             <button
               type="submit"
               className="mt-1 flex h-[3.25rem] w-full items-center justify-center gap-2 rounded-lg bg-[linear-gradient(100deg,#9d38ff_0%,#654cff_48%,#0077ff_100%)] text-base font-black text-white shadow-[0_18px_44px_rgba(0,82,255,0.28)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_58px_rgba(100,60,255,0.38)] focus:outline-none focus:ring-2 focus:ring-[#835cff]/60"
-              disabled = {isSubmitting}
-
+              disabled={isSubmitting}
             >
               <LogIn className="h-5 w-5" strokeWidth={2.2} />
-              {isSubmitting ? "Validando..." : "Entrar" }
+              {isSubmitting ? "Validando..." : "Entrar"}
             </button>
           </form>
 
           <p className="mt-7 text-center text-sm font-medium text-[#aeb1c1]">
             Ainda não tem uma conta?{" "}
-            <Link href="Cadastro_De_Usuario" className="font-bold text-[#9b85ff] transition hover:text-[#c2b6ff]">
+            <Link
+              href="Cadastro_De_Usuario"
+              className="font-bold text-[#9b85ff] transition hover:text-[#c2b6ff]"
+            >
               Criar conta
             </Link>
           </p>
