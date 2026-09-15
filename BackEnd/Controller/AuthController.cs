@@ -7,8 +7,9 @@ namespace BackEnd.controller
     [Route("api/[controller]")]
     public class Auth : ControllerBase
     {
-        private readonly IAuth _auth;
-        public Auth(IAuth auth)
+        private readonly IAuthService _auth;
+
+        public Auth(IAuthService auth)
         {
             _auth = auth;
         }

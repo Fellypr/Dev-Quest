@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/fellype/Documentos/Projetos/DevQuest/DevQuestCode/BackEnd/BackEnd.csproj": {}
+    "/workspaces/Dev-Quest/BackEnd/BackEnd.csproj": {}
   },
   "projects": {
-    "/home/fellype/Documentos/Projetos/DevQuest/DevQuestCode/BackEnd/BackEnd.csproj": {
+    "/workspaces/Dev-Quest/BackEnd/BackEnd.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/fellype/Documentos/Projetos/DevQuest/DevQuestCode/BackEnd/BackEnd.csproj",
+        "projectUniqueName": "/workspaces/Dev-Quest/BackEnd/BackEnd.csproj",
         "projectName": "BackEnd",
-        "projectPath": "/home/fellype/Documentos/Projetos/DevQuest/DevQuestCode/BackEnd/BackEnd.csproj",
-        "packagesPath": "/home/fellype/.nuget/packages/",
-        "outputPath": "/home/fellype/Documentos/Projetos/DevQuest/DevQuestCode/BackEnd/obj/",
+        "projectPath": "/workspaces/Dev-Quest/BackEnd/BackEnd.csproj",
+        "packagesPath": "/home/codespace/.nuget/packages/",
+        "outputPath": "/workspaces/Dev-Quest/BackEnd/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/fellype/.nuget/NuGet/NuGet.Config"
+          "/home/codespace/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -24,7 +24,6 @@
         },
         "frameworks": {
           "net10.0": {
-            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {}
           }
@@ -39,11 +38,10 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.300"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net10.0": {
-          "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
             "BCrypt.Net-Next": {
@@ -96,7 +94,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/fellype/.dotnet/sdk/10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.200/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

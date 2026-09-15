@@ -1,9 +1,34 @@
-bin/
-obj/
+# BackEnd (.NET / C#)
+# Compilação e builds
+[Bb]in/
+[Oo]bj/
+**/publish/
+
+# Arquivos de usuário e IDEs
 *.user
+*.suo
+*.userprefs
+*.sln.docstates
 .vs/
-AGENTS.MD
-BackEnd/appsettings.Development.json
+.idea/
+*.DotSettings.user
+
+# Segredos e configurações locais
+**/appsettings.Development.json
+**/appsettings.Production.json
+**/appsettings.*.local.json
+http-client.private.env.json
+.env
+.env.*
+
+# Certificados HTTPS de desenvolvimento
+*.pfx
+*.p12
+*.key
+
+# Logs
+*.log
+logs/
 
 
 # FrontEnd

@@ -1,6 +1,0 @@
-bin/
-obj/
-*.user
-.vs/
-appsettings.Development.*
-AGENTS.MD
