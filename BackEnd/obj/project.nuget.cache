@@ -1,9 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "3gtsp86Wwd0=",
+  "dgSpecHash": "zyLyUtYqg14=",
   "success": true,
   "projectFilePath": "/workspaces/Dev-Quest/BackEnd/BackEnd.csproj",
   "expectedPackageFiles": [
+    "/home/codespace/.nuget/packages/asp.versioning.abstractions/10.2.1/asp.versioning.abstractions.10.2.1.nupkg.sha512",
+    "/home/codespace/.nuget/packages/asp.versioning.http/10.2.1/asp.versioning.http.10.2.1.nupkg.sha512",
+    "/home/codespace/.nuget/packages/asp.versioning.mvc/10.2.1/asp.versioning.mvc.10.2.1.nupkg.sha512",
     "/home/codespace/.nuget/packages/bcrypt.net-next/4.2.0/bcrypt.net-next.4.2.0.nupkg.sha512",
     "/home/codespace/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/codespace/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/10.0.11/microsoft.aspnetcore.authentication.jwtbearer.10.0.11.nupkg.sha512",

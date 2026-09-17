@@ -2,6 +2,48 @@
   "version": 3,
   "targets": {
     "net10.0": {
+      "Asp.Versioning.Abstractions/10.2.1": {
+        "type": "package",
+        "compile": {
+          "lib/net10.0/Asp.Versioning.Abstractions.dll": {}
+        },
+        "runtime": {
+          "lib/net10.0/Asp.Versioning.Abstractions.dll": {}
+        },
+        "build": {
+          "buildTransitive/Asp.Versioning.Abstractions.targets": {}
+        }
+      },
+      "Asp.Versioning.Http/10.2.1": {
+        "type": "package",
+        "dependencies": {
+          "Asp.Versioning.Abstractions": "10.2.1"
+        },
+        "compile": {
+          "lib/net10.0/Asp.Versioning.Http.dll": {}
+        },
+        "runtime": {
+          "lib/net10.0/Asp.Versioning.Http.dll": {}
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ],
+        "build": {
+          "buildTransitive/Asp.Versioning.Http.targets": {}
+        }
+      },
+      "Asp.Versioning.Mvc/10.2.1": {
+        "type": "package",
+        "dependencies": {
+          "Asp.Versioning.Http": "10.2.1"
+        },
+        "compile": {
+          "lib/net10.0/Asp.Versioning.Mvc.dll": {}
+        },
+        "runtime": {
+          "lib/net10.0/Asp.Versioning.Mvc.dll": {}
+        }
+      },
       "BCrypt.Net-Next/4.2.0": {
         "type": "package",
         "compile": {
@@ -905,6 +947,57 @@
     }
   },
   "libraries": {
+    "Asp.Versioning.Abstractions/10.2.1": {
+      "sha512": "jMBztsVim+rYVrkNY23dMuOjTGXGQ9+je1xb3i17KgUof7OcBZtMMDduEWoCQ52SpTlYqKsuzgJyUMCMOFCBfg==",
+      "type": "package",
+      "path": "asp.versioning.abstractions/10.2.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "README.md",
+        "analyzers/dotnet/cs/Asp.Versioning.Analyzers.dll",
+        "asp.versioning.abstractions.10.2.1.nupkg.sha512",
+        "asp.versioning.abstractions.nuspec",
+        "buildTransitive/Asp.Versioning.Abstractions.targets",
+        "icon.png",
+        "lib/net10.0/Asp.Versioning.Abstractions.dll",
+        "lib/netstandard1.0/Asp.Versioning.Abstractions.dll",
+        "lib/netstandard2.0/Asp.Versioning.Abstractions.dll"
+      ]
+    },
+    "Asp.Versioning.Http/10.2.1": {
+      "sha512": "XaVOKS4AV6a6JdFsiuyLkNwU0ilWhUK2U71mBEXJsgi5AGpo24UkfZ4KUhpRGpuMmQNrugS7yxCIscGcnujdFA==",
+      "type": "package",
+      "path": "asp.versioning.http/10.2.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "README.md",
+        "analyzers/dotnet/cs/Asp.Versioning.Api.Analyzers.dll",
+        "asp.versioning.http.10.2.1.nupkg.sha512",
+        "asp.versioning.http.nuspec",
+        "buildTransitive/Asp.Versioning.Http.targets",
+        "icon.png",
+        "lib/net10.0/Asp.Versioning.Http.dll"
+      ]
+    },
+    "Asp.Versioning.Mvc/10.2.1": {
+      "sha512": "fMzUraYZOAobKQn2PffrgPsULbCWFeWroYRYndPasxPsiQl1+i8x5qYRuMYZAbzDrBnymPUMBxT2gZG2PwbkcQ==",
+      "type": "package",
+      "path": "asp.versioning.mvc/10.2.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "README.md",
+        "asp.versioning.mvc.10.2.1.nupkg.sha512",
+        "asp.versioning.mvc.nuspec",
+        "icon.png",
+        "lib/net10.0/Asp.Versioning.Mvc.dll"
+      ]
+    },
     "BCrypt.Net-Next/4.2.0": {
       "sha512": "gwLD2KfCuwQesP17aVh4h6lpiMPEVt5Lbpndo0ej903hNUUTtyxt3ARdDjmuydBRTAUICc7OVKVbaOvc6SQYXA==",
       "type": "package",
@@ -3024,6 +3117,7 @@
   },
   "projectFileDependencyGroups": {
     "net10.0": [
+      "Asp.Versioning.Mvc >= 10.2.1",
       "BCrypt.Net-Next >= 4.2.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 10.0.11",
       "Microsoft.AspNetCore.OpenApi >= 10.0.9",
@@ -3076,6 +3170,10 @@
       "net10.0": {
         "targetAlias": "net10.0",
         "dependencies": {
+          "Asp.Versioning.Mvc": {
+            "target": "Package",
+            "version": "[10.2.1, )"
+          },
           "BCrypt.Net-Next": {
             "target": "Package",
             "version": "[4.2.0, )"

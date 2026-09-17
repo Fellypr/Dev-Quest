@@ -9,10 +9,12 @@ namespace BackEnd.services
     public class AuthService : IAuthService
     {
         private readonly AppDbContext _context;
+        private readonly IJwtService _jwtService;
 
-        public AuthService(AppDbContext context)
+        public AuthService(AppDbContext context, IJwtService jwtService)
         {
             _context = context;
+            _jwtService = jwtService;
         }
 
         
@@ -22,13 +24,7 @@ namespace BackEnd.services
 
             if (emailExists)
             {
-
                 return ApiResponse<UserResponse>.Erro("Essa conta já existe.");
-                // return new ApiResponse<UserResponse>
-                // {
-                //     Sucesso = false,
-                //     Mensagem = "E-mail já cadastrado"
-                // };
             }
             string passwordHash = BCryptNet.HashPassword(userDto.Password);
 
@@ -41,11 +37,14 @@ namespace BackEnd.services
 
             _context.AppUsers.Add(user);
             await _context.SaveChangesAsync();
+            var token = _jwtService.GenerateToken(user);
+
 
             var userResponse = new UserResponse
             {
                 UserName = user.UserName,
-                Email = user.Email
+                Email = user.Email,
+                Token = token
             };
 
             return ApiResponse<UserResponse>.Ok(userResponse, "Usuário cadastrado com sucesso");
