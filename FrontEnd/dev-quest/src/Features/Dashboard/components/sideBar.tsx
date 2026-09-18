@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 function HomeIcon() {
   return (
     <svg
@@ -17,13 +21,17 @@ function HomeIcon() {
   );
 }
 
-function DevQuestLogo() {
+
+
+function DevQuestLogo({ isOpen }: { isOpen: boolean }) {
   return (
-    <div aria-label="DevQuest" className="flex h-10.25 items-center gap-2">
+    <div aria-label="DevQuest" className="flex h-10.25 items-center gap-2 overflow-hidden">
       <span className="relative block size-[35px] shrink-0 bg-[#6559ff] [clip-path:polygon(28%_0,100%_0,100%_100%,28%_100%,0_72%,0_28%)]">
         <span className="absolute inset-[7px] bg-[#02040b] [clip-path:polygon(35%_0,100%_0,65%_55%,100%_55%,100%_100%,0_100%,0_35%)]" />
       </span>
-      <span className="flex items-baseline text-[24px] font-semibold tracking-[-1.2px]">
+      <span
+        className={`flex items-baseline text-[24px] font-semibold tracking-[-1.2px] whitespace-nowrap transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0"}`}
+      >
         <span className="text-[#f2f5ff]">Dev</span>
         <span className="text-[#6559ff]">Quest</span>
       </span>
@@ -35,7 +43,7 @@ function LogoutIcon() {
   return (
     <svg
       aria-hidden="true"
-      className="size-4.5"
+      className="size-4.5 shrink-0"
       fill="none"
       viewBox="0 0 18 18"
     >
@@ -51,44 +59,62 @@ function LogoutIcon() {
 }
 
 export function SideBar() {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <main className="min-h-screen bg-[#02040b]">
-      <aside
-        aria-label="Navegação principal"
-        className="flex min-h-screen w-[226px] flex-col gap-[18px] border-r border-[#1a1f40] bg-[#02040b] px-[18px] pb-5 pt-7"
+    <aside
+      aria-label="Navegação principal"
+      className={`flex min-h-screen flex-col gap-[18px] border-r border-[#1a1f40] bg-[#02040b] px-[14px] pb-5 pt-7 transition-all duration-300 ease-in-out ${
+        isOpen ? "w-60" : "w-16"
+      }`}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
+      <div className="overflow-hidden">
+        <DevQuestLogo isOpen={isOpen} />
+      </div>
+
+      <nav className="w-full overflow-hidden">
+        <a
+          aria-current="page"
+          className="flex h-[46px] w-full items-center gap-[13px] rounded-[10px] px-3 text-[#a6b0cc] transition-colors hover:bg-[#080c19] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6559ff]"
+          href="#inicio"
+        >
+          <HomeIcon />
+          <span
+            className={`text-sm font-normal text-[#b2bad1] whitespace-nowrap transition-opacity duration-300 ${
+              isOpen ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            Início
+          </span>
+        </a>
+      </nav>
+
+      <div className="min-h-px flex-1" />
+
+      <section
+        aria-label="Perfil do jogador"
+        className={`${isOpen ? "flex w-full shrink-0 flex-col gap-3 overflow-hidden rounded-xl border border-[#1a2442] bg-[#050914] p-[10px]" : "flex flex-col align-items justify-center -mr-1 gap-3"}`}
       >
-        <div className="h-[41px] w-[166px] shrink-0 overflow-hidden">
-          <DevQuestLogo />
+        <div className="flex items-center gap-2.5 overflow-hidden">
+          <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-[#3d47ff] bg-[#0f0d2e]">
+            <span className="text-[24px] font-bold leading-none text-[#14dbff]">
+              L
+            </span>
+          </div>
+          <span
+            className={`text-sm font-semibold text-[#f2f5ff] whitespace-nowrap transition-opacity duration-300 ${
+              isOpen ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            Luiz
+          </span>
         </div>
 
-        <nav className="w-full overflow-hidden">
-          <a
-            aria-current="page"
-            className="flex h-[46px] w-[190px] items-center gap-[13px] rounded-[10px] pl-4 pr-[14px] text-[#a6b0cc] transition-colors hover:bg-[#080c19] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6559ff]"
-            href="#inicio"
-          >
-            <HomeIcon />
-            <span className="text-sm font-normal text-[#b2bad1]">Início</span>
-          </a>
-        </nav>
-
-        <div className="min-h-px flex-1" />
-
-        <section
-          aria-label="Perfil do jogador"
-          className="flex h-auto w-[190px] shrink-0 flex-col gap-[66px] overflow-hidden rounded-xl border border-[#1a2442] bg-[#050914] p-[14px]"
-        >
-          <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-[#3d47ff] bg-[#0f0d2e]">
-              <span className="text-[32px] font-bold leading-none text-[#14dbff]">
-                L
-              </span>
-            </div>
-            <span className="text-sm font-semibold text-[#f2f5ff]">Luiz</span>
-          </div>
-
+        {isOpen && (
           <button
-            className="flex h-10.5 w-40.5 shrink-0 items-center gap-2.5 rounded-[10px] border border-[rgba(242,61,82,0.42)] bg-[rgba(56,6,14,0.34)] px-3.5 text-[#fa7d87] shadow-[0_4px_10px_rgba(140,5,20,0.16)] transition-colors hover:bg-[rgba(86,8,20,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fa7d87]"
+            className="flex h-9 w-full shrink-0 items-center gap-2.5 rounded-[10px] border border-[rgba(242,61,82,0.42)] bg-[rgba(56,6,14,0.34)] px-3 text-[#fa7d87] shadow-[0_4px_10px_rgba(140,5,20,0.16)] transition-colors hover:bg-[rgba(86,8,20,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fa7d87]"
             type="button"
           >
             <span className="relative size-4.5 shrink-0 overflow-hidden">
@@ -96,8 +122,18 @@ export function SideBar() {
             </span>
             <span className="text-xs font-semibold">Sair</span>
           </button>
-        </section>
-      </aside>
-    </main>
+        )}
+
+        {!isOpen && (
+          <button
+            aria-label="Sair"
+            className="flex size-9 shrink-0 items-center justify-center rounded-[10px] border border-[rgba(242,61,82,0.42)] bg-[rgba(56,6,14,0.34)] text-[#fa7d87] shadow-[0_4px_10px_rgba(140,5,20,0.16)] transition-colors hover:bg-[rgba(86,8,20,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fa7d87]"
+            type="button"
+          >
+            <LogoutIcon />
+          </button>
+        )}
+      </section>
+    </aside>
   );
 }
