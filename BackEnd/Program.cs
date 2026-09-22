@@ -62,3 +62,5 @@ app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("AllowFrontend");
 app.MapControllers();
 app.Run();
+
+public partial class Program { }

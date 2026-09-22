@@ -255,3 +255,46 @@
     scroll-behavior: auto;
   }
 }
+
+/* Fan Carousel */
+.fan-layout {
+  height: 14rem;
+  perspective: 1200px;
+}
+
+.fan-card {
+  position: absolute;
+  width: 6rem;
+  height: 8.5rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3);
+  will-change: transform, opacity;
+  transform-origin: center bottom;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+
+.fan-card:hover {
+  box-shadow: 0 12px 48px rgba(101, 89, 255, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 480px) {
+  .fan-layout { height: 16rem; }
+  .fan-card { width: 7.5rem; height: 10.5rem; }
+}
+
+@media (min-width: 640px) {
+  .fan-layout { height: 18rem; }
+  .fan-card { width: 8.5rem; height: 12rem; }
+}
+
+@media (min-width: 768px) {
+  .fan-layout { height: 20rem; }
+  .fan-card { width: 10rem; height: 14rem; }
+}
+
+@media (min-width: 1024px) {
+  .fan-layout { height: 25rem; }
+  .fan-card { width: 14rem; height: 15rem; border-radius: 1rem; }
+}

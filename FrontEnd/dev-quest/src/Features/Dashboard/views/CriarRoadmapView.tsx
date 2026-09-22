@@ -1,9 +1,22 @@
+import {PracticeAreaCarousel} from "../components/PracticeAreaCarousel";
+
+
 type CriarRoadmapViewProps = {
   onBack: () => void;
 };
 
 const tecnologiasSugeridas = ["C#", "JavaScript", "React", "Node.js"];
 const niveis = ["Iniciante", "Junior", "Intermediario"];
+const CARDS = [
+  { color: "#6559ff", label: "JavaScript" },
+  { color: "#14dbff", label: "Python" },
+  { color: "#ff3d52", label: "React" },
+  { color: "#00c853", label: "Node.js" },
+  { color: "#ff9100", label: "TypeScript" },
+  { color: "#e040fb", label: "CSS" },
+  { color: "#ffd600", label: "HTML" },
+];
+
 
 export function CriarRoadmapView({ onBack }: CriarRoadmapViewProps) {
   return (
@@ -23,11 +36,19 @@ export function CriarRoadmapView({ onBack }: CriarRoadmapViewProps) {
         >
           Voltar
         </button>
+
       </div>
 
+      <section className="flex flex-col gap-3 rounded-xl border border-[#1a2442] bg-[#050914] p-5">
+        <h2 className="text-lg font-semibold text-[#f5f5ff]">
+          Escolha a area de atuação que deseja aprender
+        </h2>
+        <p className="text-base font-normal text-[#aeb8d6]">
+          Selecione uma das areas sugeridas.
+        </p>
+        <PracticeAreaCarousel cards={CARDS} />
+      </section>
       
-      
-
       
     </section>
   );

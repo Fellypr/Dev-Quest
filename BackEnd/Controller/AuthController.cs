@@ -20,7 +20,7 @@ namespace BackEnd.controller
             var response = await _auth.RegisterUser(user);
             if (!response.Sucesso)
             {
-               return BadRequest(response);
+               return Unauthorized(response);
             }
             return StatusCode(201, response);
         }

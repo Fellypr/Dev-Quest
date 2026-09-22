@@ -22,13 +22,7 @@ namespace BackEnd.services
 
             if (emailExists)
             {
-
                 return ApiResponse<UserResponse>.Erro("Essa conta já existe.");
-                // return new ApiResponse<UserResponse>
-                // {
-                //     Sucesso = false,
-                //     Mensagem = "E-mail já cadastrado"
-                // };
             }
             string passwordHash = BCryptNet.HashPassword(userDto.Password);
 
