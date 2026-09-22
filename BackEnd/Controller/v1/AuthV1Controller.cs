@@ -1,21 +1,23 @@
 using Microsoft.AspNetCore.Mvc;
 using BackEnd.interfaces;
 using BackEnd.dtos;
+
 namespace BackEnd.controller
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class Auth : ControllerBase
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/auth")]
+    public class AuthV1Controller : ControllerBase
     {
         private readonly IAuthService _auth;
 
-        public Auth(IAuthService auth)
+        public AuthV1Controller(IAuthService auth)
         {
             _auth = auth;
         }
 
-        [HttpPost("cadastro")]
-        public async Task<IActionResult> CadastrarUsuario(UserDto user)
+        [HttpPost("register")]
+        public async Task<IActionResult> CadastrarUsuario(UserV1Dto user)
         {
             var response = await _auth.RegisterUser(user);
             if (!response.Sucesso)
@@ -27,7 +29,7 @@ namespace BackEnd.controller
 
         [HttpPost("login")]
 
-        public async Task<IActionResult> Authenticate (UserDto userDto)
+        public async Task<IActionResult> Authenticate (UserV1Dto userDto)
         {
             var response = await _auth.Authenticate(userDto);
             if (!response.Sucesso)

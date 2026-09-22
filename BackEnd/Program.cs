@@ -32,6 +32,15 @@ builder.Services.AddCors(options =>
         }
     });
 });
+
+builder.Services.AddApiVersioning(options => {
+
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    
+});
+
 var connectString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext> (options =>
@@ -45,6 +54,7 @@ builder.Services.Configure<JwtSettings>(
 );
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 
 

@@ -3,7 +3,7 @@ namespace BackEnd.interfaces
 {
     public interface IAuthService
     {
-        Task<ApiResponse<UserResponse>> RegisterUser (UserDto userDto); 
-        Task<ApiResponse<UserResponse>> Authenticate (UserDto userDto);
+        Task<ApiResponse<UserV1Response>> RegisterUser (UserV1Dto userDto); 
+        Task<ApiResponse<UserV1Response>> Authenticate (UserV1Dto userDto);
     }
 }
