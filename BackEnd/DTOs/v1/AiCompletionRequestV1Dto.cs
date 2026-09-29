@@ -1,14 +1,21 @@
+#nullable enable
+using System.Text.Json.Serialization;
+
 namespace BackEnd.dtos.v1;
 
-public class AiCompletionRequestV1Dto
-{
-    public record CompletionRequest(
-        string Model,
-        double Temperature,
-        ResponseFormatDto ResponseFormatDto,
-        IaMessage[] Messages,
-        bool Stream = true
-    );
-    public record ResponseFormatDto(string Type);
-    public record IaMessage(string Role, string Content);
-}
+public record AiCompletionRequestV1Dto(
+    [property: JsonPropertyName("model")] string Model,
+    [property: JsonPropertyName("messages")] IEnumerable<AiMessageV1Dto> Messages,
+    [property: JsonPropertyName("temperature")] double? Temperature = null,
+    [property: JsonPropertyName("response_format")] AiResponseFormatV1Dto? ResponseFormat = null,
+    [property: JsonPropertyName("stream")] bool Stream = false
+);
+
+public record AiMessageV1Dto(
+    [property: JsonPropertyName("role")] string Role,
+    [property: JsonPropertyName("content")] string Content
+);
+
+public record AiResponseFormatV1Dto(
+    [property: JsonPropertyName("type")] string Type
+);
