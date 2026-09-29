@@ -4,6 +4,8 @@ using BackEnd.Middlewares;
 using BackEnd.services;
 using Microsoft.EntityFrameworkCore;
 using BackEnd.Configuration;
+using Asp.Versioning;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -51,6 +53,10 @@ builder.Services.AddDbContext<AppDbContext> (options =>
 
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("Jwt")
+);
+
+builder.Services.Configure<OpenRouterSettings>(
+    builder.Configuration.GetSection(OpenRouterSettings.SectionName)
 );
 
 builder.Services.AddScoped<IAuthService, AuthService>();

@@ -18,13 +18,13 @@ namespace BackEnd.services
         }
 
         
-        public async Task<ApiResponse<UserResponse>> RegisterUser(UserDto userDto)
+        public async Task<ApiResponse<UserV1Response>> RegisterUser(UserV1Dto userDto)
         {
             var emailExists = await _context.AppUsers.AnyAsync(user => user.Email == userDto.Email);
 
             if (emailExists)
             {
-                return ApiResponse<UserResponse>.Erro("Essa conta já existe.");
+                return ApiResponse<UserV1Response>.Erro("Essa conta já existe.");
             }
             string passwordHash = BCryptNet.HashPassword(userDto.Password);
 
@@ -40,34 +40,34 @@ namespace BackEnd.services
             var token = _jwtService.GenerateToken(user);
 
 
-            var userResponse = new UserResponse
+            var userResponse = new UserV1Response
             {
                 UserName = user.UserName,
                 Email = user.Email,
                 Token = token
             };
 
-            return ApiResponse<UserResponse>.Ok(userResponse, "Usuário cadastrado com sucesso");
+            return ApiResponse<UserV1Response>.Ok(userResponse, "Usuário cadastrado com sucesso");
         }
-        public async Task<ApiResponse<UserResponse>> Authenticate(UserDto userDto)
+        public async Task<ApiResponse<UserV1Response>> Authenticate(UserV1Dto userDto)
         {
             var userExist = await _context.AppUsers.FirstOrDefaultAsync(banco => banco.Email == userDto.Email || banco.UserName == userDto.UserName);
 
             if(userExist == null)
             {
-                return ApiResponse<UserResponse>.Erro("Usuario não encontrado");
+                return ApiResponse<UserV1Response>.Erro("Usuario não encontrado");
             }
             if (!BCryptNet.Verify(userDto.Password,userExist.Password))
             {
-                return ApiResponse<UserResponse>.Erro("Usuário ou senha incorretos");
+                return ApiResponse<UserV1Response>.Erro("Usuário ou senha incorretos");
             }
 
-            var userResponse = new UserResponse{
+            var userResponse = new UserV1Response{
               Email = userExist.Email,
               UserName = userExist.UserName  
             };
 
-            return ApiResponse<UserResponse>.Ok(userResponse,$"Bem vindo de volta {userResponse.UserName}");
+            return ApiResponse<UserV1Response>.Ok(userResponse,$"Bem vindo de volta {userResponse.UserName}");
             
         }
     }
