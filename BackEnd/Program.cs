@@ -5,6 +5,7 @@ using BackEnd.services;
 using Microsoft.EntityFrameworkCore;
 using BackEnd.Configuration;
 using Asp.Versioning;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +62,13 @@ builder.Services.Configure<OpenRouterSettings>(
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+
+builder.Services.AddHttpClient<IAiRequestService, AiRequestService>((serviceProvider, client) =>
+{
+    var settings = serviceProvider.GetRequiredService<IOptions<OpenRouterSettings>>().Value;
+    client.BaseAddress = new Uri(settings.BaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(settings.TimeoutSeconds);
+});
 
 
 
