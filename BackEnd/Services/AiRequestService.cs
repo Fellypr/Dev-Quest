@@ -45,7 +45,10 @@ public class AiRequestService : IAiRequestService
 
         try
         {
-            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, "chat/completions")
+            var isEndpointIncluded = _httpClient.BaseAddress?.AbsolutePath.TrimEnd('/').EndsWith("chat/completions", StringComparison.OrdinalIgnoreCase) == true;
+            var relativeUri = isEndpointIncluded ? "" : "chat/completions";
+
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, relativeUri)
             {
                 Content = JsonContent.Create(requestPayload)
             };
@@ -109,6 +112,11 @@ public class AiRequestService : IAiRequestService
         {
             _logger.LogError(ex, "[AI] Timeout ao aguardar resposta do OpenRouter.");
             return ApiResponse<string>.Erro("Tempo limite excedido ao aguardar resposta da IA.");
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "[AI] Falha de rede ou conexão recusada com o servidor de IA.");
+            return ApiResponse<string>.Erro($"Não foi possível conectar ao provedor de IA ({_settings.BaseUrl}). Verifique se o serviço local está em execução.");
         }
         catch (Exception ex)
         {

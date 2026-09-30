@@ -1,6 +1,20 @@
 @BackEnd_HostAddress = http://localhost:5263
 
-GET {{BackEnd_HostAddress}}/weatherforecast/
+### Testar Conexão com a IA (Completion)
+POST {{BackEnd_HostAddress}}/api/v1/ai/completion
+Content-Type: application/json
 Accept: application/json
+
+{
+  "model": "devQuest",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Olá! Responda apenas: Conexão bem-sucedida!"
+    }
+  ],
+  "temperature": 0.7,
+  "stream": false
+}
 
 ###
