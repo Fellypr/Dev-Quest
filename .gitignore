@@ -72,3 +72,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 BackEnd/.agents
+FrontEnd/dev-quest/.agents/skills/agentFrontEnd/SKILL.md

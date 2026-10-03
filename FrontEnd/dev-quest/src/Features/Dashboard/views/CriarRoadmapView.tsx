@@ -5,16 +5,11 @@ type CriarRoadmapViewProps = {
   onBack: () => void;
 };
 
-const tecnologiasSugeridas = ["C#", "JavaScript", "React", "Node.js"];
 const niveis = ["Iniciante", "Junior", "Intermediario"];
 const CARDS = [
-  { color: "#6559ff", label: "JavaScript" },
-  { color: "#14dbff", label: "Python" },
-  { color: "#ff3d52", label: "React" },
-  { color: "#00c853", label: "Node.js" },
-  { color: "#ff9100", label: "TypeScript" },
-  { color: "#e040fb", label: "CSS" },
-  { color: "#ffd600", label: "HTML" },
+  { color: "#6559ff", label: "Desenvolvimento Web" },
+  { color: "#14dbff", label: "Desenvolvimento Mobile" },
+  { color: "#ff3d52", label: "Data Science" },
 ];
 
 

@@ -9,7 +9,7 @@ export function CartaDeBoasVindasDashboard({
   onCreateRoadmap,
 }: CartaDeBoasVindasDashboardProps) {
   return (
-    <section className="relative flex min-h-54 w-full items-center overflow-hidden rounded-xl border border-[rgba(48,14,105,0.9)] bg-[linear-gradient(90deg,#08041f_0%,#02030f_42%,#02020b_64%,#0e021d_60%)] pl-10 sm:pl-11.5">
+    <section className="relative flex min-h-54 w-[50%] items-center overflow-hidden rounded-xl border border-[rgba(48,14,105,0.9)] bg-[#02030D] pl-10 sm:pl-11.5">
       <div className="relative z-20 flex flex-col items-start gap-3.5">
         <h1 className="text-[28px] font-bold leading-normal text-[#f5f5ff]">
           Olá, Luiz! 👋

@@ -49,15 +49,26 @@ function getHeightMultiplier(width: number) {
 
 function getSlotConfig(totalCards: number, slot: number) {
   if (totalCards >= MAX_VISIBLE) return FAN_POSITIONS[slot];
-  const center = totalCards >> 1;
-  const distance = totalCards > 1 ? (slot - center) / center : 0;
-  const absDistance = Math.abs(distance);
+
+
+  const center = (totalCards - 1) / 2;
+  const offset = slot - center;
+
+  const fanIndex = Math.round(HALF + offset);
+  if (fanIndex >= 0 && fanIndex < FAN_POSITIONS.length) {
+    return {
+      ...FAN_POSITIONS[fanIndex],
+      zIndex: 10 - Math.round(Math.abs(offset)),
+    };
+  }
+
+  const absOffset = Math.abs(offset);
   return {
-    rot: distance * 21,
-    scale: 1.0 - 0.2244 * absDistance * absDistance,
-    x: distance * 30,
-    y: absDistance * absDistance * 7.3,
-    zIndex: 10 - Math.abs(slot - center),
+    rot: offset * 7,
+    scale: 1.0 - 0.0654 * absOffset,
+    x: offset * 11,
+    y: absOffset * absOffset * 1.3,
+    zIndex: 10 - Math.round(absOffset),
   };
 }
 
@@ -211,7 +222,6 @@ export function PracticeAreaCarousel({
 
     prevVisible.current = new Set(visibleMap.keys());
 
-    // Hover interactions
     const visibleEntries: { el: HTMLElement; slot: number }[] = [];
     cardElements.forEach((el, i) => {
       const slot = visibleMap.get(i);
@@ -243,12 +253,7 @@ export function PracticeAreaCarousel({
             targetY -= 2.5 * hM;
             targetScale *= 1.08;
           } else {
-            const normalized =
-              centerSlot > 0 ? (slot - centerSlot) / centerSlot : 0;
-            const pushStrength =
-              8 *
-              (1 - Math.abs(normalized)) *
-              (1 + 0.2 * Math.max(0, 3 - distance));
+            const pushStrength = Math.max(3, 6 - (distance - 1) * 1.5);
 
             if (slot < hoveredSlot) {
               targetX -= pushStrength * mult;
@@ -276,7 +281,7 @@ export function PracticeAreaCarousel({
           ease: "elastic.out(1,.75)",
           overwrite: "auto",
         });
-        gsap.set(el, { zIndex: base.zIndex });
+        gsap.set(el, { zIndex: slot === hoveredSlot ? 20 : base.zIndex });
       });
     };
 
