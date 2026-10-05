@@ -360,7 +360,7 @@ export function PracticeAreaCarousel({
                   className="absolute inset-0 z-10 flex items-end justify-center pb-4"
                   style={{ backgroundColor: card.color }}
                 >
-                  <span className="rounded-md bg-black/30 px-3 py-1 text-sm font-semibold text-white backdrop-blur-sm">
+                  <span className="rounded-md bg-black/30 px-3 py-1 text-[10px] sm:text-sm font-semibold text-white backdrop-blur-sm">
                     {card.label}
                   </span>
                 </div>
