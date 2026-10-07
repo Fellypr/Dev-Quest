@@ -73,3 +73,4 @@ yarn-error.log*
 next-env.d.ts
 BackEnd/.agents
 FrontEnd/dev-quest/.agents/skills/agentFrontEnd/SKILL.md
+FrontEnd/dev-quest/regras-para-figma-mcp.md
