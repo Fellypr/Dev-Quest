@@ -10,6 +10,6 @@ namespace BackEnd.Models
         public string Email{ get; set; }
         public string Password { get; set; }
         public string Level { get; set; }
-        public ICollection<UserStack> UserStacks { get; set; }
+        public ICollection<UserTechProfile> UserTechProfiles { get; set; }
     }
 }

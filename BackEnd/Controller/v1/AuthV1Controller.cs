@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
 using BackEnd.interfaces;
-using BackEnd.dtos;
+using BackEnd.DTOs.v1;
 
 
 namespace BackEnd.controller

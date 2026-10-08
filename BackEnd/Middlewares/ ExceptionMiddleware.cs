@@ -1,6 +1,6 @@
 using System.Net;
 using System.Text.Json;
-using BackEnd.dtos;
+using BackEnd.DTOs.v1;
 
 namespace BackEnd.Middlewares
 {

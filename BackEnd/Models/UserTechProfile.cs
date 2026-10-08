@@ -3,13 +3,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BackEnd.Models
 {
-    public class UserStack
+    public class UserTechProfile
     {
         [Key]
-        public int IdStack { get; set; }
+        public int IdUserTechProfile{ get; set; }
         
         public string Specialty { get; set; }
         public string Stack { get; set; }
+        
 
         [ForeignKey("User")]
         public int IdUser { get; set; }
