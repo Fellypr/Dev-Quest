@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace BackEnd.dtos
+namespace BackEnd.DTOs.v1
 {
     public class ApiResponse<T>
     {

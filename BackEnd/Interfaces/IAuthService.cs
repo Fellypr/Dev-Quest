@@ -1,4 +1,4 @@
-using BackEnd.dtos;
+using BackEnd.DTOs.v1;
 namespace BackEnd.interfaces
 {
     public interface IAuthService

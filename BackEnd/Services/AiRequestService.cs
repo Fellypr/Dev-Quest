@@ -4,8 +4,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using BackEnd.Configuration;
-using BackEnd.dtos;
-using BackEnd.dtos.v1;
+using BackEnd.DTOs.v1;
 using BackEnd.interfaces;
 using Microsoft.Extensions.Options;
 

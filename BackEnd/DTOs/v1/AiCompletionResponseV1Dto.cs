@@ -1,7 +1,7 @@
 #nullable enable
 using System.Text.Json.Serialization;
 
-namespace BackEnd.dtos.v1;
+namespace BackEnd.DTOs.v1;
 
 public record AiCompletionResponseV1Dto(
     [property: JsonPropertyName("id")] string? Id,

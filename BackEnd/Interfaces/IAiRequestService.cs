@@ -1,5 +1,4 @@
-using BackEnd.dtos;
-using BackEnd.dtos.v1;
+using BackEnd.DTOs.v1;
 
 namespace BackEnd.interfaces;
 

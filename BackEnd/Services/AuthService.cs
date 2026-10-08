@@ -1,5 +1,5 @@
 using BackEnd.Data;
-using BackEnd.dtos;
+using BackEnd.DTOs.v1;
 using BackEnd.interfaces;
 using BackEnd.Models;
 using Microsoft.EntityFrameworkCore;
