@@ -1,23 +1,19 @@
 "use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import { Check, Eye, EyeOff, Lock, LogIn, Mail } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { userLoginSchema, userLoginType } from "../../schemas/userLogin.schema";
+import { useLogin } from "@/Features/Auth/hooks/useLogin"
 export function AuthLoginForm() {
-  const [remember, setRemember] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
-
   const {
     register,
     handleSubmit,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<userLoginType>({
-    resolver: zodResolver(userLoginSchema),
-  });
+    errors,
+    isSubmitting,
+    remember,
+    setRemember,
+    showPassword,
+    setShowPassword,
+
+  } = useLogin();
 
   const inputWrapperClass = (hasError?: boolean) =>
     `group flex h-12 items-center gap-3 rounded-lg border bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:bg-[#0d1230] ${
@@ -28,14 +24,6 @@ export function AuthLoginForm() {
 
   const errorMessageClass = "mt-2 text-xs font-semibold text-red-400";
 
-  const submit = (dados: userLoginType) => {
-    setTimeout(() => {
-      if (dados.Email === "fellype29kennedemil@gmail.com") {
-        setError("Email", { message: "Este email ja esta sendo usado" });
-      }
-      return;
-    }, 5000);
-  };
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center px-5 py-8 sm:px-8 lg:px-10 xl:px-14">
@@ -52,7 +40,7 @@ export function AuthLoginForm() {
             Entre na sua conta para continuar sua jornada.
           </p>
 
-          <form className="mt-8 space-y-5" onSubmit={handleSubmit(submit)}>
+          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="email"
