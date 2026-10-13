@@ -21,6 +21,9 @@ const features = [
 ];
 
 export function AuthFormRegisterSide() {
+
+  
+
   return (
     <aside className="relative hidden min-h-screen overflow-hidden px-10 py-9 lg:flex xl:px-14">
       <div className="absolute left-[-30%] top-[18%] h-[56rem] w-[54rem] rounded-full border border-[#3755ff]/20 bg-[radial-gradient(circle_at_38%_36%,rgba(101,76,255,0.24),rgba(7,9,34,0.7)_43%,rgba(0,0,0,0)_70%)] shadow-[0_0_100px_rgba(58,78,255,0.46)]" />

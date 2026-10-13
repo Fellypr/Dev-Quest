@@ -21,4 +21,4 @@ export const userRegistrationSchema = z.object({
         .toLowerCase(),
 })
 
-export type UserRegister = z.infer<typeof userRegistrationSchema>
+export type UserRegisterType = z.infer<typeof userRegistrationSchema>

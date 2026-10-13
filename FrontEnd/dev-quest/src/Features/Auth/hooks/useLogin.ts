@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { postApiVversionAuthLogin, usePostApiVversionAuthLogin } from "@/api/generated/hooks/auth-v1/auth-v1";
+import {usePostApiVversionAuthLogin } from "@/api/generated/hooks/auth-v1/auth-v1";
 import { userLoginSchema, type userLoginType } from "../schemas/userLogin.schema";
 import { useRouter } from 'next/navigation'
 
