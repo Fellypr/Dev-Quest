@@ -11,21 +11,33 @@ export const useLogin = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter()
+  const [isSuccess, setIsSuccess] = useState(false);
+  const router = useRouter();
+
+  const handleSuccessClose = () => {
+    setIsSuccess(false);
+  };
+
+  const handleErrorClose = () => {
+    setErrorMessage(null);
+  };
 
   const {mutateAsync: loginMutation, isPending} = usePostApiVversionAuthLogin({
     mutation: {
       onSuccess: (data) => {
-        console.log("Usuário logado:", data);
-        router.push("/Dashboard");
+        if (data?.status === 200) {
+          setIsSuccess(true);
+        } else {
+          router.push("/Dashboard");
+        }
       },
-      onError: (error) => {
-        setErrorMessage("Email ou senha inválidos.");
-        console.log("erro:",error);
+      onError: (error: Error) => {
+        setErrorMessage(error?.message || "Email ou senha inválidos.");
+        console.log("erro:",error?.message);
         setError("Email", { message: "Credenciais inválidas" });
       },
     }
-  })
+  });
 
 
 
@@ -33,7 +45,7 @@ export const useLogin = () => {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<userLoginType>({
     resolver: zodResolver(userLoginSchema),
   });
@@ -60,9 +72,14 @@ export const useLogin = () => {
     errors,
     isSubmitting: isPending,
     errorMessage,
+    setErrorMessage,
+    handleErrorClose,
     remember,
     setRemember,
     showPassword,
     setShowPassword,
+    isSuccess,
+    setIsSuccess,
+    handleSuccessClose,
   };
 };

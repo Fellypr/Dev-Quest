@@ -51,6 +51,9 @@ export const useRegister = () => {
     } catch {}
   };
 
+  const handleErrorClose = () => {
+    setErrorMessage(null);
+  };
 
   return {
     register,
@@ -58,5 +61,6 @@ export const useRegister = () => {
     errors,
     isSubmitting: isPending,
     errorMessage,
+    handleErrorClose
   }
 };

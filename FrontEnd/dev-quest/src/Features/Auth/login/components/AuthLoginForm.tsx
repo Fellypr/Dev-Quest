@@ -1,7 +1,10 @@
 "use client";
 import Link from "next/link";
 import { Check, Eye, EyeOff, Lock, LogIn, Mail } from "lucide-react";
-import { useLogin } from "@/Features/Auth/hooks/useLogin"
+import { useLogin } from "@/Features/Auth/hooks/useLogin";
+import { CardSuccess } from "./cardSuccess";
+import { CardError } from "./cardError";
+
 export function AuthLoginForm() {
   const {
     register,
@@ -12,7 +15,10 @@ export function AuthLoginForm() {
     setRemember,
     showPassword,
     setShowPassword,
-
+    isSuccess,
+    handleSuccessClose,
+    errorMessage,
+    handleErrorClose,
   } = useLogin();
 
   const inputWrapperClass = (hasError?: boolean) =>
@@ -26,7 +32,9 @@ export function AuthLoginForm() {
 
 
   return (
-    <main className="flex min-h-screen w-full items-center justify-center px-5 py-8 sm:px-8 lg:px-10 xl:px-14">
+    <main className="relative flex min-h-screen w-full items-center justify-center px-5 py-8 sm:px-8 lg:px-10 xl:px-14">
+      
+
       <section className="relative w-full max-w-[27.5rem] overflow-hidden rounded-2xl border border-white/10 bg-[#0b1024]/82 px-6 py-7 shadow-[0_28px_90px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl sm:px-8 sm:py-8">
         <div className="pointer-events-none absolute -right-28 -top-24 h-72 w-72 rounded-full bg-[#0077ff]/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-[#8f3cff]/18 blur-3xl" />
@@ -124,21 +132,21 @@ export function AuthLoginForm() {
                 Lembrar de mim
               </label>
 
-              <Link
+              {/* <Link
                 href="#"
                 className="shrink-0 text-sm font-bold text-[#9b85ff] transition hover:text-[#c2b6ff]"
               >
                 Esqueci a senha
-              </Link>
+              </Link> */}
             </div>
 
             <button
               type="submit"
-              className="mt-1 flex h-[3.25rem] w-full items-center justify-center gap-2 rounded-lg bg-[linear-gradient(100deg,#9d38ff_0%,#654cff_48%,#0077ff_100%)] text-base font-black text-white shadow-[0_18px_44px_rgba(0,82,255,0.28)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_58px_rgba(100,60,255,0.38)] focus:outline-none focus:ring-2 focus:ring-[#835cff]/60"
-              disabled={isSubmitting}
+              className="mt-1 flex h-[3.25rem] w-full items-center justify-center gap-2 rounded-lg bg-[linear-gradient(100deg,#9d38ff_0%,#654cff_48%,#0077ff_100%)] text-base font-black text-white shadow-[0_18px_44px_rgba(0,82,255,0.28)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_58px_rgba(100,60,255,0.38)] focus:outline-none focus:ring-2 focus:ring-[#835cff]/60 disabled:cursor-not-allowed disabled:opacity-75"
+              disabled={isSubmitting || isSuccess}
             >
               <LogIn className="h-5 w-5" strokeWidth={2.2} />
-              {isSubmitting ? "Validando..." : "Entrar"}
+              {isSubmitting ? "Validando..." : isSuccess ? "Acessando..." : "Entrar"}
             </button>
           </form>
 
@@ -152,7 +160,30 @@ export function AuthLoginForm() {
             </Link>
           </p>
         </div>
+        
       </section>
+      
+      {isSuccess && (
+        <aside className="fixed bottom-10 left-1/2 z-50 -translate-x-1/2 px-4 sm:left-auto sm:right-6 sm:translate-x-0 sm:px-0">
+          <CardSuccess
+            title="Login realizado com sucesso!"
+            message="Redirecionando para o seu dashboard..."
+            autoCloseDuration={3500}
+            onClose={handleSuccessClose}
+          />
+        </aside>
+      )}
+
+      {errorMessage && (
+        <aside className="fixed bottom-10 left-1/2 z-50 -translate-x-1/2 px-4 sm:left-auto sm:right-6 sm:translate-x-0 sm:px-0">
+          <CardError
+            title="Falha na autenticação"
+            message={errorMessage}
+            autoCloseDuration={4000}
+            onClose={handleErrorClose}
+          />
+        </aside>
+      )}
     </main>
   );
 }
