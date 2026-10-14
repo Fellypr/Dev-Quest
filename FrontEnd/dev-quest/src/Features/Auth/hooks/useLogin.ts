@@ -36,6 +36,7 @@ export const useLogin = () => {
         setErrorMessage(error?.message || "Email ou senha inválidos.");
         console.log("erro:",error?.message);
         setError("Email", { message: "Credenciais inválidas" });
+        setError("Password", { message: "Credenciais inválidas" });
       },
     }
   });
