@@ -9,22 +9,35 @@ import { useRouter } from 'next/navigation';
 
 export const useRegister = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter()
   
+  const handleSuccessClose = () => {
+    setIsSuccess(false);
+    router.push("/Dashboard");
+  };
+
   const {mutateAsync: registerMutation, isPending} = usePostApiVversionAuthRegister({
     mutation: {
       onSuccess: (data) => {
-        console.log("Usuário registrado:", data);
-        router.push("/Login");
+        if (!data?.status || (data.status >= 200 && data.status < 300)) {
+          setIsSuccess(true);
+        } else {
+          router.push("/Dashboard");
+        }
       },
-      onError: (error) => {
-        setErrorMessage("Erro ao registrar usuário.");
-        console.log("erro:",error);
+      onError: (error: Error) => {
+        setErrorMessage(error.message || "Erro ao registrar usuário.");
+        console.log("erro:",error.message);
         setError("Email",  { message: "Credenciais inválidas" });
         setError("Password", { message: "Credenciais inválidas" });
       },
     }
-  })
+  });
+
+  const handleErrorClose = () => {
+    setErrorMessage(null);
+  };
 
 
 
@@ -32,7 +45,7 @@ export const useRegister = () => {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<UserRegisterType>({
     resolver: zodResolver(userRegistrationSchema),
   });
@@ -51,9 +64,7 @@ export const useRegister = () => {
     } catch {}
   };
 
-  const handleErrorClose = () => {
-    setErrorMessage(null);
-  };
+  
 
   return {
     register,
@@ -61,6 +72,8 @@ export const useRegister = () => {
     errors,
     isSubmitting: isPending,
     errorMessage,
-    handleErrorClose
+    handleErrorClose,
+    isSuccess,
+    handleSuccessClose,
   }
 };

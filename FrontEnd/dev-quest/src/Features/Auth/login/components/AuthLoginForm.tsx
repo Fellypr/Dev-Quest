@@ -2,8 +2,8 @@
 import Link from "next/link";
 import { Check, Eye, EyeOff, Lock, LogIn, Mail } from "lucide-react";
 import { useLogin } from "@/Features/Auth/hooks/useLogin";
-import { CardSuccess } from "./cardSuccess";
-import { CardError } from "./cardError";
+import { CardSuccess } from "../../components/cardSuccess";
+import { CardError } from "../../components/cardError";
 
 export function AuthLoginForm() {
   const {
@@ -22,10 +22,9 @@ export function AuthLoginForm() {
   } = useLogin();
 
   const inputWrapperClass = (hasError?: boolean) =>
-    `group flex h-12 items-center gap-3 rounded-lg border bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:bg-[#0d1230] ${
-      hasError
-        ? "border-red-500/70 focus-within:border-red-400 focus-within:shadow-[0_0_0_3px_rgba(248,113,113,0.16)]"
-        : "border-white/10 focus-within:border-[#7657ff] focus-within:shadow-[0_0_0_3px_rgba(118,87,255,0.18)]"
+    `group flex h-12 items-center gap-3 rounded-lg border bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:bg-[#0d1230] ${hasError
+      ? "border-red-500/70 focus-within:border-red-400 focus-within:shadow-[0_0_0_3px_rgba(248,113,113,0.16)]"
+      : "border-white/10 focus-within:border-[#7657ff] focus-within:shadow-[0_0_0_3px_rgba(118,87,255,0.18)]"
     }`;
 
   const errorMessageClass = "mt-2 text-xs font-semibold text-red-400";
@@ -33,7 +32,7 @@ export function AuthLoginForm() {
 
   return (
     <main className="relative flex min-h-screen w-full items-center justify-center px-5 py-8 sm:px-8 lg:px-10 xl:px-14">
-      
+
 
       <section className="relative w-full max-w-[27.5rem] overflow-hidden rounded-2xl border border-white/10 bg-[#0b1024]/82 px-6 py-7 shadow-[0_28px_90px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl sm:px-8 sm:py-8">
         <div className="pointer-events-none absolute -right-28 -top-24 h-72 w-72 rounded-full bg-[#0077ff]/20 blur-3xl" />
@@ -160,9 +159,9 @@ export function AuthLoginForm() {
             </Link>
           </p>
         </div>
-        
+
       </section>
-      
+
       {isSuccess && (
         <aside className="fixed bottom-10 left-1/2 z-50 -translate-x-1/2 px-4 sm:left-auto sm:right-6 sm:translate-x-0 sm:px-0">
           <CardSuccess

@@ -16,6 +16,7 @@ export const useLogin = () => {
 
   const handleSuccessClose = () => {
     setIsSuccess(false);
+    router.push("/Dashboard");
   };
 
   const handleErrorClose = () => {
@@ -25,7 +26,7 @@ export const useLogin = () => {
   const {mutateAsync: loginMutation, isPending} = usePostApiVversionAuthLogin({
     mutation: {
       onSuccess: (data) => {
-        if (data?.status === 200) {
+        if (data?.status >= 200 && data?.status < 300) {
           setIsSuccess(true);
         } else {
           router.push("/Dashboard");
@@ -60,9 +61,7 @@ export const useLogin = () => {
           password: dados.Password,
         }
       });
-    } catch {
-      //aqui
-    }
+    } catch {}
   };
 
 

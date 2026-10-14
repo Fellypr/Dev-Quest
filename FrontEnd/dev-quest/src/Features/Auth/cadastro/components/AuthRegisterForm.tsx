@@ -5,14 +5,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { Check, Eye, EyeOff, Lock, LogIn, Mail, User } from "lucide-react";
 import { useRegister } from "@/Features/Auth/hooks/useRegister";
-import { CardError } from "@/Features/Auth/login/components/cardError";
+import { CardError } from "@/Features/Auth/components/cardError";
+import { CardSuccess } from "@/Features/Auth/components/cardSuccess";
 
 
 export function AuthRegisterForm() {
 
   const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const { register, handleSubmit, errors, isSubmitting, errorMessage, handleErrorClose } = useRegister()
+  const { register, handleSubmit, errors, isSubmitting, errorMessage, handleErrorClose, handleSuccessClose ,isSuccess} = useRegister()
   const inputWrapperClass = (hasError?: boolean) =>
     `group flex h-12 items-center gap-3 rounded-lg border bg-[#080c1f]/80 px-4 text-[#aeb4c8] transition duration-200 focus-within:bg-[#0d1230] ${hasError
       ? "border-red-500/70 focus-within:border-red-400 focus-within:shadow-[0_0_0_3px_rgba(248,113,113,0.16)]"
@@ -160,11 +161,11 @@ export function AuthRegisterForm() {
 
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="mt-1 flex h-13 w-full items-center justify-center gap-2 rounded-lg bg-[linear-gradient(100deg,#9d38ff_0%,#654cff_48%,#0077ff_100%)] text-base font-black text-white shadow-[0_18px_44px_rgba(0,82,255,0.28)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_58px_rgba(100,60,255,0.38)] focus:outline-none focus:ring-2 focus:ring-[#835cff]/60 hover:cursor-pointer"
+              disabled={isSubmitting || isSuccess}
+              className="mt-1 flex h-13 w-full items-center justify-center gap-2 rounded-lg bg-[linear-gradient(100deg,#9d38ff_0%,#654cff_48%,#0077ff_100%)] text-base font-black text-white shadow-[0_18px_44px_rgba(0,82,255,0.28)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_58px_rgba(100,60,255,0.38)] focus:outline-none focus:ring-2 focus:ring-[#835cff]/60 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-75"
             >
               <LogIn className="h-5 w-5" strokeWidth={2.2} />
-              {isSubmitting ? "Cadastrando..." : "Cadastrar"}
+              {isSubmitting ? "Cadastrando..." : isSuccess ? "Acessando..." : "Cadastrar"}
             </button>
           </form>
 
@@ -179,6 +180,17 @@ export function AuthRegisterForm() {
           </p>
         </div>
       </section>
+      {isSuccess && (
+        <aside className="fixed bottom-10 left-1/2 z-50 -translate-x-1/2 px-4 sm:left-auto sm:right-6 sm:translate-x-0 sm:px-0">
+          <CardSuccess
+            title="Cadastro realizado com sucesso!"
+            message="Redirecionando para a pagina ao dashboard..."
+            autoCloseDuration={3500}
+            onClose={handleSuccessClose}
+          />
+        </aside>
+      )}
+
       {errorMessage && (
         <aside className="fixed bottom-10 left-1/2 z-50 -translate-x-1/2 px-4 sm:left-auto sm:right-6 sm:translate-x-0 sm:px-0">
           <CardError
