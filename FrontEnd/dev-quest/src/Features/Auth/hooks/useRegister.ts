@@ -14,7 +14,7 @@ export const useRegister = () => {
   
   const handleSuccessClose = () => {
     setIsSuccess(false);
-    router.push("/Dashboard");
+    router.push("/Welcome");
   };
 
   const {mutateAsync: registerMutation, isPending} = usePostApiVversionAuthRegister({
@@ -23,7 +23,7 @@ export const useRegister = () => {
         if (!data?.status || (data.status >= 200 && data.status < 300)) {
           setIsSuccess(true);
         } else {
-          router.push("/Dashboard");
+          router.push("/Welcome");
         }
       },
       onError: (error: Error) => {

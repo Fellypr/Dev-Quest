@@ -1,11 +1,10 @@
-import {PracticeAreaCarousel} from "../components/PracticeAreaCarousel";
+import {PracticeAreaCarousel} from "@/components/PracticeAreaCarousel";
 
 
 type CriarRoadmapViewProps = {
   onBack: () => void;
 };
 
-const niveis = ["Iniciante", "Junior", "Intermediario"];
 const CARDS = [
   { color: "#6559ff", label: "Desenvolvimento Web" },
   { color: "#14dbff", label: "Desenvolvimento Mobile" },

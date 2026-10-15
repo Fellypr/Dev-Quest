@@ -1,11 +1,12 @@
 import Image from "next/image";
+import { AnimatedPhrase } from "./components/AnimatedPhrase";
 
 export function PresentationPage() {
   return (
     <div
       className={`relative min-h-screen w-full overflow-hidden bg-[#020308] text-white`}
     >
-      <nav className="w-full flex items-center justify-center z-50">
+      <nav className="w-full h-32 flex items-center justify-center z-50 absolute">
         <Image src="/icon/LogoComNomeSemFundo.png" alt="" width={280} height={80} className=""/>
       </nav>
       <div
@@ -20,7 +21,6 @@ export function PresentationPage() {
           }}
         />
       </div>
-
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -bottom-[360px] -right-[180px] h-[640px] w-[680px] max-w-[85vw] select-none"
@@ -33,6 +33,8 @@ export function PresentationPage() {
           }}
         />
       </div>
+
+      <AnimatedPhrase />
     </div>
   );
 }
