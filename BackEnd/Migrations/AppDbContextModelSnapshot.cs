@@ -21,6 +21,27 @@ namespace BackEnd.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BackEnd.Models.RoadmapTopics", b =>
+                {
+                    b.Property<int>("IdTopic")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdTopic"));
+
+                    b.Property<int>("RoadmapId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.HasKey("IdTopic");
+
+                    b.HasIndex("RoadmapId");
+
+                    b.ToTable("RoadmapTopics");
+                });
+
             modelBuilder.Entity("BackEnd.Models.UserTechProfile", b =>
                 {
                     b.Property<int>("RoadmapId")
@@ -73,6 +94,17 @@ namespace BackEnd.Migrations
                     b.ToTable("AppUsers");
                 });
 
+            modelBuilder.Entity("BackEnd.Models.RoadmapTopics", b =>
+                {
+                    b.HasOne("BackEnd.Models.UserTechProfile", "UserTechProfiles")
+                        .WithMany("RoadmapTopics")
+                        .HasForeignKey("RoadmapId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserTechProfiles");
+                });
+
             modelBuilder.Entity("BackEnd.Models.UserTechProfile", b =>
                 {
                     b.HasOne("BackEnd.Models.Users", "User")
@@ -82,6 +114,11 @@ namespace BackEnd.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BackEnd.Models.UserTechProfile", b =>
+                {
+                    b.Navigation("RoadmapTopics");
                 });
 
             modelBuilder.Entity("BackEnd.Models.Users", b =>

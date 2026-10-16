@@ -14,5 +14,7 @@ namespace BackEnd.Models
         [ForeignKey("User")]
         public int IdUser { get; set; }
         public Users User { get; set; }
+
+        public ICollection<RoadmapTopics> RoadmapTopics { get; set; }
     }
 }
