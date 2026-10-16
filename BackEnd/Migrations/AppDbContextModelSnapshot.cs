@@ -23,14 +23,17 @@ namespace BackEnd.Migrations
 
             modelBuilder.Entity("BackEnd.Models.UserTechProfile", b =>
                 {
-                    b.Property<int>("IdUserTechProfile")
+                    b.Property<int>("RoadmapId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdUserTechProfile"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RoadmapId"));
 
                     b.Property<int>("IdUser")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Language")
+                        .HasColumnType("text");
 
                     b.Property<string>("Specialty")
                         .HasColumnType("text");
@@ -38,7 +41,7 @@ namespace BackEnd.Migrations
                     b.Property<string>("Stack")
                         .HasColumnType("text");
 
-                    b.HasKey("IdUserTechProfile");
+                    b.HasKey("RoadmapId");
 
                     b.HasIndex("IdUser");
 

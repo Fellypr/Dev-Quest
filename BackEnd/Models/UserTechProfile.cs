@@ -6,11 +6,10 @@ namespace BackEnd.Models
     public class UserTechProfile
     {
         [Key]
-        public int IdUserTechProfile{ get; set; }
-        
+        public int RoadmapId{ get; set; }
         public string Specialty { get; set; }
-        public string Stack { get; set; }
-        
+        public string Stack{ get; set; }
+        public string Language { get; set; }
 
         [ForeignKey("User")]
         public int IdUser { get; set; }
