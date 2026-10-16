@@ -21,6 +21,30 @@ namespace BackEnd.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BackEnd.Models.RoadmapLessons", b =>
+                {
+                    b.Property<int>("IdLesson")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdLesson"));
+
+                    b.Property<int>("PointsXp")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RoadmapTopicId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Subject")
+                        .HasColumnType("text");
+
+                    b.HasKey("IdLesson");
+
+                    b.HasIndex("RoadmapTopicId");
+
+                    b.ToTable("RoadmapLessons");
+                });
+
             modelBuilder.Entity("BackEnd.Models.RoadmapTopics", b =>
                 {
                     b.Property<int>("IdTopic")
@@ -28,6 +52,15 @@ namespace BackEnd.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdTopic"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("PercentProgress")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PointsXpTotal")
+                        .HasColumnType("integer");
 
                     b.Property<int>("RoadmapId")
                         .HasColumnType("integer");
@@ -94,6 +127,17 @@ namespace BackEnd.Migrations
                     b.ToTable("AppUsers");
                 });
 
+            modelBuilder.Entity("BackEnd.Models.RoadmapLessons", b =>
+                {
+                    b.HasOne("BackEnd.Models.RoadmapTopics", "RoadmapTopics")
+                        .WithMany("RoadmapLessons")
+                        .HasForeignKey("RoadmapTopicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RoadmapTopics");
+                });
+
             modelBuilder.Entity("BackEnd.Models.RoadmapTopics", b =>
                 {
                     b.HasOne("BackEnd.Models.UserTechProfile", "UserTechProfiles")
@@ -114,6 +158,11 @@ namespace BackEnd.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BackEnd.Models.RoadmapTopics", b =>
+                {
+                    b.Navigation("RoadmapLessons");
                 });
 
             modelBuilder.Entity("BackEnd.Models.UserTechProfile", b =>

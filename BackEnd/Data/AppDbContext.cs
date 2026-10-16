@@ -7,6 +7,7 @@ namespace BackEnd.Data
         public DbSet<Users> AppUsers {get;set;}
         public DbSet<UserTechProfile> UserTechProfiles {get;set;}
         public DbSet<RoadmapTopics> RoadmapTopics {get;set;}
+        public DbSet<RoadmapLessons> RoadmapLessons {get;set;}
         public AppDbContext (DbContextOptions<AppDbContext> options) : base(options)
         {}
 
@@ -21,6 +22,11 @@ namespace BackEnd.Data
                 .HasOne(us => us.UserTechProfiles)
                 .WithMany(u => u.RoadmapTopics) 
                 .HasForeignKey(us => us.RoadmapId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<RoadmapLessons>()
+                .HasOne(us => us.RoadmapTopics)
+                .WithMany(u => u.RoadmapLessons) 
+                .HasForeignKey(us => us.RoadmapTopicId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
