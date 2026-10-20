@@ -8,12 +8,10 @@ namespace BackEnd.Models
     {
         [Key]
         public int IdLesson { get; set; }
-        
         [ForeignKey("RoadmapTopics")]
         public int RoadmapTopicId { get; set; }
         public string Subject { get; set; }
-        public int PointsXp { get; set; }
-        
+        public string ExplanationOfTheSubject { get; set; }
         public RoadmapTopics RoadmapTopics { get; set; }
     }
 }

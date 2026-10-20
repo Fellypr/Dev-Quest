@@ -29,8 +29,8 @@ namespace BackEnd.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdLesson"));
 
-                    b.Property<int>("PointsXp")
-                        .HasColumnType("integer");
+                    b.Property<string>("ExplanationOfTheSubject")
+                        .HasColumnType("text");
 
                     b.Property<int>("RoadmapTopicId")
                         .HasColumnType("integer");
@@ -53,8 +53,11 @@ namespace BackEnd.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdTopic"));
 
-                    b.Property<string>("Description")
+                    b.Property<string>("Challenge")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("PercentProgress")
                         .HasColumnType("integer");
