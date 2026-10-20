@@ -1,0 +1,15 @@
+**/.git
+**/.gitignore
+**/.vs
+**/.vscode
+**/.idea
+**/bin
+**/obj
+**/.agents
+**/.kombai
+**/Dockerfile*
+**/*.dockerignore
+**/README.md
+**/schema.md
+**/*.http
+**/appsettings.Development.json

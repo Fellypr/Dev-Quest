@@ -311,6 +311,40 @@ Accept: application/json
 
 ---
 
+## 🐳 Containerização com Docker (Multi-Stage Build)
+
+A aplicação conta com um [Dockerfile](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/Dockerfile) configurado com a estratégia de **Multi-Stage Build**, seguindo as melhores práticas da indústria:
+
+- **Estágio `builder` (`dotnet/sdk:10.0`)**:
+  - Restaura as dependências NuGet a partir do [BackEnd.csproj](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/BackEnd.csproj) aproveitando o cache de camadas do Docker.
+  - Compila e gera a publicação otimizada em modo `Release` (`dotnet publish`).
+- **Estágio `runtime` (`dotnet/aspnet:10.0`)**:
+  - Imagem final enxuta contendo apenas o runtime e os binários compilados (sem SDK, compilador, código-fonte ou arquivos temporários).
+  - **Segurança**: Execução configurada com o usuário não-root `app` (`USER app`), reduzindo a superfície de risco.
+  - **Contexto Otimizado**: Arquivo [.dockerignore](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/.dockerignore) configurado para filtrar diretórios locais como `bin/`, `obj/`, arquivos de configuração sensíveis e git.
+
+### Como Construir e Executar
+
+#### 1. Construir a Imagem Docker
+```bash
+docker build -t devquest-backend:latest .
+```
+
+#### 2. Executar o Contêiner
+```bash
+docker run -d \
+  --name devquest-api \
+  -p 8080:8080 \
+  -e ConnectionStrings__DefaultConnection="Host=host.docker.internal;Port=5432;Database=devquest;Username=seu_usuario;Password=sua_senha;" \
+  -e Jwt__Key="sua-chave-secreta-super-segura-com-pelo-menos-32-caracteres" \
+  -e OpenRouter__ApiKey="sua_chave_de_api" \
+  devquest-backend:latest
+```
+
+> **Acesso**: A API estará disponível na porta `8080` (ex: `http://localhost:8080/swagger` ou rotas `/api/v1/...`).
+
+---
+
 ## 📌 Status e Próximos Passos Sugeridos
 
 - [x] Arquitetura em camadas com Injeção de Dependências.
@@ -318,6 +352,8 @@ Accept: application/json
 - [x] Serviço de geração de tokens JWT.
 - [x] Integração desacoplada e observável com IA (OpenRouter).
 - [x] Middleware global para tratamento de exceções.
+- [x] Containerização com Docker e Multi-Stage Build otimizado.
 - [ ] Ativar proteção de rotas privadas com atributo `[Authorize]` nos endpoints necessários.
 - [ ] Gerar e retornar o token JWT também no endpoint de Login (`AuthService.Authenticate`).
 - [ ] Implementar política de Rate Limiting nativa no endpoint de IA para evitar abusos de requisições.
+
