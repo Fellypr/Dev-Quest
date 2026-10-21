@@ -11,6 +11,8 @@ export interface CardItem {
 
 interface PracticeAreaCarouselProps {
   cards: CardItem[];
+  onSelectCard?: (card: CardItem, index: number, element: HTMLElement) => void;
+  disabled?: boolean;
 }
 
 const MAX_VISIBLE = 7;
@@ -77,6 +79,8 @@ const ARROW_CLASSES =
 
 export function PracticeAreaCarousel({
   cards,
+  onSelectCard,
+  disabled = false,
 }: PracticeAreaCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isAnimating = useRef(false);
@@ -287,7 +291,7 @@ export function PracticeAreaCarousel({
 
     const enterHandlers = visibleEntries.map(({ el, slot }) => {
       const handler = () => {
-        if (isAnimating.current) return;
+        if (isAnimating.current || disabled) return;
         if (leaveTimer) {
           clearTimeout(leaveTimer);
           leaveTimer = null;
@@ -302,7 +306,7 @@ export function PracticeAreaCarousel({
     });
 
     const onMouseLeave = () => {
-      if (isAnimating.current) return;
+      if (isAnimating.current || disabled) return;
       if (leaveTimer) clearTimeout(leaveTimer);
       leaveTimer = setTimeout(() => {
         activeSlot = null;
@@ -312,7 +316,7 @@ export function PracticeAreaCarousel({
     container.addEventListener("mouseleave", onMouseLeave);
 
     const onResize = () => {
-      if (!isAnimating.current) updateHoverLayout(activeSlot);
+      if (!isAnimating.current && !disabled) updateHoverLayout(activeSlot);
     };
     window.addEventListener("resize", onResize);
 
@@ -324,7 +328,7 @@ export function PracticeAreaCarousel({
       window.removeEventListener("resize", onResize);
       if (leaveTimer) clearTimeout(leaveTimer);
     };
-  }, [centerIndex, totalCards, getVisibleMap, needsPagination]);
+  }, [centerIndex, totalCards, getVisibleMap, needsPagination, disabled]);
 
   if (!totalCards) return null;
 
@@ -366,7 +370,13 @@ export function PracticeAreaCarousel({
                 </div>
               </div>
             );
-            return card.linkUrl ? (
+            const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+              if (onSelectCard && !disabled && !isAnimating.current) {
+                onSelectCard(card, index, e.currentTarget);
+              }
+            };
+
+            return card.linkUrl && !onSelectCard ? (
               <a
                 key={index}
                 href={card.linkUrl}
@@ -379,7 +389,11 @@ export function PracticeAreaCarousel({
                 {cardContent}
               </a>
             ) : (
-              <div key={index} className="fan-card">
+              <div
+                key={index}
+                onClick={handleClick}
+                className="fan-card cursor-pointer"
+              >
                 {cardContent}
               </div>
             );
