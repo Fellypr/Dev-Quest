@@ -91,7 +91,16 @@ export function PresentationPage() {
           style={{
             backgroundColor: zoomBox.color,
           }}
-        />
+        >
+          {zoomBox.image && (
+            <img
+              src={zoomBox.image}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
       )}
     </div>
   );

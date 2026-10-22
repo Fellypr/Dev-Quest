@@ -10,6 +10,8 @@ interface ZoomBox {
   width: number;
   height: number;
   color: string;
+  image?: string;
+  videoUrl?: string;
 }
 
 export function usePresentationFlow() {
@@ -34,6 +36,8 @@ export function usePresentationFlow() {
         width: rect.width,
         height: rect.height,
         color: card.color,
+        image: card.image,
+        videoUrl: card.videoUrl,
       };
 
       savedBoxRef.current = initialBox;
@@ -92,6 +96,8 @@ export function usePresentationFlow() {
         width: rect.width,
         height: rect.height,
         color: selectedCard.color,
+        image: selectedCard.image,
+        videoUrl: selectedCard.videoUrl,
       };
       savedBoxRef.current = targetBox;
     }

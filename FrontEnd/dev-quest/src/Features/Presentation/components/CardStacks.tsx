@@ -155,7 +155,7 @@ export function CardStacks({
         {onBack && (
           <button
             onClick={onBack}
-            className="mt-4 flex items-center justify-center gap-1.5 text-[#521750c8] hover:text-white transition-colors text-[13px] font-medium cursor-pointer py-1 px-3"
+            className="mt-4 flex items-center justify-center gap-1.5 text-[#d1d1d1c8] hover:text-white transition-colors text-[13px] font-medium cursor-pointer py-1 px-3"
           >
             <Image
               src="/images/experience/arrow-left.svg"

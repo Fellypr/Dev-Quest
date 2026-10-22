@@ -7,7 +7,19 @@ export interface CardItem {
   color: string;
   label: string;
   linkUrl?: string;
+  image?: string;
+  videoUrl?: string;
 }
+
+const DEFAULT_CARD_IMAGES: Record<string, string> = {
+  "Desenvolvimento Web": "/images/Web_developer_typing_at_desk__web_.jpg",
+  "Desenvolvimento Mobile": "/images/Woman_coding_at_desk_mobile2K_.jpg",
+};
+
+const DEFAULT_CARD_VIDEOS: Record<string, string> = {
+  "Desenvolvimento Web": "/Video/Software_developer_web.mp4",
+  "Desenvolvimento Mobile": "/Video/Woman_coding_at_desk_mobile1080p.mp4",
+};
 
 interface PracticeAreaCarouselProps {
   cards: CardItem[];
@@ -358,13 +370,36 @@ export function PracticeAreaCarousel({
           className="fan-layout relative flex w-full max-w-[80rem] items-center justify-center"
         >
           {cards.map((card, index) => {
+            const bgImage = card.image || DEFAULT_CARD_IMAGES[card.label];
+
             const cardContent = (
-              <div className="relative h-full w-full overflow-hidden">
-                <div
-                  className="absolute inset-0 z-10 flex items-end justify-center pb-4"
-                  style={{ backgroundColor: card.color }}
-                >
-                  <span className="rounded-md bg-black/30 px-3 py-1 text-[10px] sm:text-sm font-semibold text-white backdrop-blur-sm">
+              <div className="relative h-full w-full overflow-hidden select-none">
+                {bgImage ? (
+                  <>
+                    <img
+                      src={bgImage}
+                      alt={card.label}
+                      className="absolute inset-0 h-full w-full object-cover pointer-events-none"
+                      loading="lazy"
+                      draggable={false}
+                    />
+                    {/* Gradiente escuro para legibilidade */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/15 pointer-events-none" />
+                    {/* Tonalidade sutil da cor do card */}
+                    <div
+                      className="absolute inset-0 opacity-20 pointer-events-none"
+                      style={{ backgroundColor: card.color }}
+                    />
+                  </>
+                ) : (
+                  <div
+                    className="absolute inset-0"
+                    style={{ backgroundColor: card.color }}
+                  />
+                )}
+
+                <div className="absolute inset-0 z-10 flex items-end justify-center pb-4 px-2">
+                  <span className="rounded-md bg-black/50 px-3 py-1 text-[10px] sm:text-sm font-semibold text-white backdrop-blur-md shadow-sm border border-white/10 text-center">
                     {card.label}
                   </span>
                 </div>

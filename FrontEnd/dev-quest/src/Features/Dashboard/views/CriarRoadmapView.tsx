@@ -6,8 +6,18 @@ type CriarRoadmapViewProps = {
 };
 
 const CARDS = [
-  { color: "#6559ff", label: "Desenvolvimento Web" },
-  { color: "#14dbff", label: "Desenvolvimento Mobile" },
+  {
+    color: "#6559ff",
+    label: "Desenvolvimento Web",
+    image: "/images/Web_developer_typing_at_desk__web_.jpg",
+    videoUrl: "/Video/Software_developer_web.mp4",
+  },
+  {
+    color: "#14dbff",
+    label: "Desenvolvimento Mobile",
+    image: "/images/Woman_coding_at_desk_mobile2K_.jpg",
+    videoUrl: "/Video/Woman_coding_at_desk_mobile1080p.mp4",
+  },
   { color: "#ff3d52", label: "Data Science" },
 ];
 
