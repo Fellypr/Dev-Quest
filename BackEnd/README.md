@@ -1,6 +1,6 @@
 # Dev-Quest — BackEnd API
 
-API REST desenvolvida em **.NET 10** para a plataforma **Dev-Quest**, oferecendo serviços de autenticação com segurança criptográfica, persistência de dados com PostgreSQL via Entity Framework Core, versionamento de rotas e integração com modelos de Inteligência Artificial (OpenRouter / APIs compatíveis com chat completions).
+API REST desenvolvida em **.NET 10** para a plataforma **Dev-Quest**, oferecendo serviços de autenticação robusta (Access Token em memória RAM + Refresh Token persistido em Cookie HttpOnly com rotação OWASP), persistência de dados com PostgreSQL via Entity Framework Core, versionamento de rotas e integração com modelos de Inteligência Artificial (OpenRouter / APIs compatíveis com chat completions).
 
 ---
 
@@ -12,7 +12,9 @@ API REST desenvolvida em **.NET 10** para a plataforma **Dev-Quest**, oferecendo
 - **ORM**: [Entity Framework Core 10](https://learn.microsoft.com/ef/core/) com [Npgsql.EntityFrameworkCore.PostgreSQL](https://www.npgsql.org/efcore/)
 - **Autenticação & Criptografia**:
   - [BCrypt.Net-Next](https://github.com/BcryptNet/bcrypt.net): Hash seguro de senhas com salt automático.
-  - [System.IdentityModel.Tokens.Jwt](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet): Emissão de tokens JWT com claims de usuário.
+  - [Microsoft.AspNetCore.Authentication.JwtBearer](https://learn.microsoft.com/aspnet/core/security/authentication/jwt-authn): Middleware e validação oficial de tokens JWT no pipeline do ASP.NET Core.
+  - [System.IdentityModel.Tokens.Jwt](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet): Emissão de tokens JWT assinados com `HmacSha256`, claims e identificador `Jti`.
+  - **Estratégia Híbrida de Tokens**: Access Token de curta duração (15 min) para estado volátil na RAM do Front-End + Refresh Token criptográfico de longa duração (7 dias) armazenado em Cookie `HttpOnly` com Rotação Automática de Tokens.
 - **Versionamento de API**: [Asp.Versioning.Mvc](https://github.com/dotnet/aspnet-api-versioning) (suporte a versionamento semântico nas rotas `/api/v{version}/...`).
 - **Documentação Interativa**: [Swagger / OpenAPI](https://swagger.io/) (`Swashbuckle.AspNetCore` e `Microsoft.AspNetCore.OpenApi`).
 - **Resiliência e Comunicação HTTP**: `HttpClient` tipado gerenciado pelo `IHttpClientFactory` para chamadas resilientes ao serviço de IA.
@@ -26,12 +28,12 @@ O projeto adota uma arquitetura em camadas clara e desacoplada:
 ```text
 BackEnd/
 ├── Configuration/               # Classes de configuração tipadas (Options Pattern)
-│   ├── JwtSettings.cs           # Mapeamento das configurações de emissão do JWT
+│   ├── JwtSettings.cs           # Configurações de expiração do Access Token e Refresh Token
 │   └── OpenRouterSettings.cs    # Configurações do provedor de IA (URL, Modelo, Chave, Timeout)
 │
 ├── Controller/                  # Camada de apresentação e roteamento HTTP
 │   └── v1/
-│       ├── AuthV1Controller.cs  # Endpoints de cadastro e autenticação de usuários
+│       ├── AuthV1Controller.cs  # Endpoints: register, login, refresh (silencioso) e logout
 │       └── AiV1Controller.cs    # Endpoint de comunicação com a Inteligência Artificial
 │
 ├── Data/                        # Acesso a dados e persistência
@@ -40,33 +42,37 @@ BackEnd/
 ├── DTOs/                        # Data Transfer Objects (Contratos de entrada/saída)
 │   ├── ApiResponse.cs           # Envelope padronizado de resposta (Sucesso, Mensagem, Dados)
 │   └── v1/
-│       ├── UserV1Dto.cs         # DTOs de envio e retorno de usuário (UserV1Dto, UserV1Response)
+│       ├── UserV1Dto.cs         # DTOs de envio e retorno de usuário (com RefreshToken protegido por [JsonIgnore])
 │       ├── AiCompletionRequestV1Dto.cs  # Payload estruturado para envio de mensagens à IA
 │       └── AiCompletionResponseV1Dto.cs # DTOs de leitura de resposta do provedor de IA
 │
 ├── Interfaces/                  # Contratos de abstração para injeção de dependência
-│   ├── IAuthService.cs          # Interface de regras de negócio de autenticação
-│   ├── IJwtService.cs           # Interface do gerador de tokens JWT
+│   ├── IAuthService.cs          # Métodos de registro, login, refresh e logout/revogação
+│   ├── IJwtService.cs           # Emissão de AccessToken (JWT) e RefreshToken criptográfico
 │   └── IAiRequestService.cs     # Interface de comunicação com o provedor de IA
 │
 ├── Middlewares/                 # Interceptadores do pipeline HTTP
-│   └──  ExceptionMiddleware.cs  # Captura global de exceções e padronização de erro 500
+│   └── ExceptionMiddleware.cs   # Captura global de exceções e padronização de erro 500
 │
 ├── Migrations/                  # Histórico de migrações do banco de dados (EF Core)
-│   ├── 20260814152033_InitialCreate.cs
+│   ├── 20261023125354_AddRefreshTokenTable.cs # Tabela RefreshTokens vinculada a AppUsers
 │   └── AppDbContextModelSnapshot.cs
 │
 ├── Models/                      # Entidades de domínio mapeadas para o banco
-│   └── User.cs                  # Entidade Users (Id, UserName, Email, Password)
+│   ├── User.cs                  # Entidade Users (Id, UserName, Email, Password, Level)
+│   ├── RefreshToken.cs          # Entidade RefreshTokens (Token, ExpiresAt, RevokedAt, UserId)
+│   ├── UserTechProfile.cs       # Perfil técnico e trilhas de aprendizagem
+│   ├── RoadmapTopics.cs         # Tópicos do roadmap
+│   └── RoadmapLessons.cs        # Lições e assuntos de cada tópico
 │
 ├── Services/                    # Camada de lógica de negócios e integrações externas
-│   ├── AuthService.cs           # Validação, hash de senha e orquestração de usuário
-│   ├── JwtService.cs            # Assinatura de credenciais e construção de tokens JWT
+│   ├── AuthService.cs           # Validação, hash de senha, emissão e rotação de Refresh Token
+│   ├── JwtService.cs            # Assinatura de JWT e geração de tokens aleatórios seguros
 │   └── AiRequestService.cs      # Cliente HTTP seguro com logs, métricas e tratamento de IA
 │
 ├── BackEnd.http                 # Arquivo para testes de requisições diretas via VS Code / IDE
 ├── BackEnd.csproj               # Manifesto do projeto e dependências NuGet
-└── Program.cs                   # Ponto de entrada, injeção de dependências e pipeline HTTP
+└── Program.cs                   # Ponto de entrada, injeção de dependências, CORS e autenticação
 ```
 
 ---
@@ -90,7 +96,8 @@ As configurações da aplicação residem nos arquivos `appsettings.json` ou `ap
     "Key": "sua-chave-secreta-super-segura-com-pelo-menos-32-caracteres",
     "Issuer": "DevQuestBackend",
     "Audience": "DevQuestFrontend",
-    "ExpirationMinutes": 60
+    "ExpirationMinutes": 15,
+    "RefreshTokenExpirationDays": 7
   },
   "OpenRouter": {
     "ApiKey": "sua_chave_de_api_openrouter_ou_provedor",
@@ -111,7 +118,7 @@ As configurações da aplicação residem nos arquivos `appsettings.json` ou `ap
 ### Pré-requisitos
 - [.NET SDK 10](https://dotnet.microsoft.com/download)
 - [PostgreSQL](https://www.postgresql.org/download/) em execução
-- Ferramenta de linha de comando do Entity Framework Core (opcional, instalável via `dotnet tool install --global dotnet-ef`)
+- Ferramenta de linha de comando do Entity Framework Core (`dotnet tool install --global dotnet-ef`)
 
 ### Passo a Passo
 
@@ -161,7 +168,7 @@ Todas as respostas da API seguem o envelope padronizado `ApiResponse<T>`:
 
 #### 📌 Cadastro de Usuário
 - **Rota:** `POST /api/v1/auth/register`
-- **Descrição:** Registra um novo usuário no banco com senha criptografada via BCrypt e retorna um token JWT de acesso imediato.
+- **Descrição:** Registra um novo usuário no banco com senha criptografada via BCrypt. Emite o par de tokens: o **Access Token** é retornado no corpo da resposta para ser mantido na memória RAM do Front-End, e o **Refresh Token** é enviado através de um Cookie seguro `HttpOnly`.
 - **Corpo da Requisição (`UserV1Dto`):**
   ```json
   {
@@ -169,6 +176,10 @@ Todas as respostas da API seguem o envelope padronizado `ApiResponse<T>`:
     "email": "joao@exemplo.com",
     "password": "SenhaSegura123!"
   }
+  ```
+- **Cabeçalhos de Resposta:**
+  ```http
+  Set-Cookie: refreshToken=dGhpcy1pcy1hLXNlY3VyZS1yZWZyZXNoLXRva2Vu...; Path=/api/v1/auth; HttpOnly; SameSite=Lax
   ```
 - **Respostas:**
   - `201 Created` — Cadastro realizado com sucesso:
@@ -196,7 +207,7 @@ Todas as respostas da API seguem o envelope padronizado `ApiResponse<T>`:
 
 #### 📌 Login de Usuário
 - **Rota:** `POST /api/v1/auth/login`
-- **Descrição:** Autentica o usuário validando login por e-mail ou username em conjunto com a senha criptografada.
+- **Descrição:** Autentica o usuário validando login por e-mail ou username em conjunto com a senha criptografada. Emite um novo par de tokens (Access Token no body e Refresh Token via Cookie `HttpOnly`).
 - **Corpo da Requisição (`UserV1Dto`):**
   ```json
   {
@@ -205,6 +216,10 @@ Todas as respostas da API seguem o envelope padronizado `ApiResponse<T>`:
   }
   ```
   *(Ou informando `"userName"` no lugar de `"email"`)*
+- **Cabeçalhos de Resposta:**
+  ```http
+  Set-Cookie: refreshToken=dGhpcy1pcy1hLXNlY3VyZS1yZWZyZXNoLXRva2Vu...; Path=/api/v1/auth; HttpOnly; SameSite=Lax
+  ```
 - **Respostas:**
   - `200 OK` — Autenticação bem-sucedida:
     ```json
@@ -214,7 +229,7 @@ Todas as respostas da API seguem o envelope padronizado `ApiResponse<T>`:
       "dados": {
         "userName": "joaosilva",
         "email": "joao@exemplo.com",
-        "token": null
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
       }
     }
     ```
@@ -224,6 +239,42 @@ Todas as respostas da API seguem o envelope padronizado `ApiResponse<T>`:
       "sucesso": false,
       "mensagem": "Usuário ou senha incorretos",
       "dados": null
+    }
+    ```
+
+---
+
+#### 📌 Renovação Silenciosa de Sessão (Silent Refresh)
+- **Rota:** `POST /api/v1/auth/refresh`
+- **Descrição:** Renova o Access Token sem intervenção do usuário. O navegador anexa o Cookie `refreshToken` automaticamente. Aplica **Rotação de Refresh Token (OWASP)**: o token anterior é revogado no banco e um par totalmente novo é gerado.
+- **Requisição:** Nenhum corpo obrigatório. O navegador envia o Cookie com `withCredentials = true` / `credentials: 'include'`.
+- **Respostas:**
+  - `200 OK` — Token renovado com sucesso:
+    ```json
+    {
+      "sucesso": true,
+      "mensagem": "Token renovado com sucesso",
+      "dados": {
+        "userName": "joaosilva",
+        "email": "joao@exemplo.com",
+        "token": "eyJhbGciOiJIUzI1NiIs..."
+      }
+    }
+    ```
+  - `401 Unauthorized` — Sessão expirada ou Refresh Token inválido/revogado (o cookie é automaticamente removido pelo servidor).
+
+---
+
+#### 📌 Logout e Encerramento de Sessão
+- **Rota:** `POST /api/v1/auth/logout`
+- **Descrição:** Revoga o Refresh Token ativo no banco de dados e limpa o Cookie `HttpOnly` do navegador.
+- **Respostas:**
+  - `200 OK` — Sessão encerrada:
+    ```json
+    {
+      "sucesso": true,
+      "mensagem": "Sessão encerrada com sucesso.",
+      "dados": true
     }
     ```
 
@@ -268,70 +319,86 @@ Todas as respostas da API seguem o envelope padronizado `ApiResponse<T>`:
 
 ---
 
-## 🛡️ Segurança e Resiliência
+## 🛡️ Arquitetura de Segurança de Tokens
 
-1. **Criptografia de Senhas**: As senhas são processadas com `BCrypt.Net-Next`, garantindo que nenhuma senha em texto plano seja persistida no banco.
-2. **Tokens JWT com Assinatura Segura**: Implementação com `HmacSha256`, incluindo claims de `Subject`, `Email`, `UniqueName` e controle de expiração em minutos ou dias (`rememberMe`).
-3. **Tratamento Centralizado de Erros**: O `ExceptionMiddleware` intercepta falhas inesperadas no pipeline e devolve um JSON padronizado com HTTP 500, evitando o vazamento de stack traces e detalhes internos da infraestrutura.
-4. **Resiliência do Serviço de IA**:
-   - Tratamento detalhado de códigos HTTP do provedor:
-     - `401 / 403`: Detecta falha de credencial do provedor.
-     - `429 (TooManyRequests)`: Alerta sobre sobrecarga ou rate limit temporário.
-     - `400`: Informa payload ou modelo inválido.
-   - Tratamento de `Timeout` (`TaskCanceledException`) e desconexão de rede (`HttpRequestException`).
-   - Propagação de `CancellationToken` para que requisições interrompidas pelo cliente encerrem imediatamente a chamada externa.
-   - Observabilidade com medição de latência em milissegundos e contagem de tokens consumidos via `ILogger`.
-5. **Controle de CORS**:
-   - Política `AllowFrontend` liberada em ambiente de desenvolvimento e restrita a `http://localhost:3000` em produção.
+A aplicação adota o padrão de mercado para proteção contra ataques **XSS (Cross-Site Scripting)** e **CSRF (Cross-Site Request Forgery)**:
+
+```
+                      ┌──────────────────────────────────────────┐
+                      │                FRONT-END                 │
+                      │  - Access Token: Estado RAM (React State)│
+                      │  - Refresh Token: Cookie HttpOnly (Browser)│
+                      └─────────────────────┬────────────────────┘
+                                            │
+                1. POST /login (Credenciais) │
+                ◄───────────────────────────┤
+                Retorna:                    │
+                - Body: { token (access) }  │
+                - Set-Cookie: refreshToken  │
+                  (HttpOnly, Secure, SameSite, Path=/api/v1/auth)
+                                            │
+                2. Requisições normais à API│
+                   (Header: Bearer <access>)│
+                ───────────────────────────►│ Valida JWT no Middleware
+                                            │
+                3. Access Token expira (401)│
+                ◄───────────────────────────┘
+                                            │
+                4. POST /auth/refresh       │
+                   (Browser anexa o Cookie) │
+                ───────────────────────────►│ Valida e Rotaciona no Banco
+                ◄───────────────────────────┘ Devolve novo Access Token
+                Novo Access Token na RAM    │ e atualiza Cookie do Refresh
+```
+
+1. **Access Token Volátil (RAM)**:
+   - Expira em **15 minutos**.
+   - Fica guardado **apenas na memória volátil** da aplicação front-end (ex: estado do React/Vue ou Context API).
+   - **Nunca** é gravado no `localStorage` ou `sessionStorage`, prevenindo o roubo definitivo da sessão via injeções de script XSS.
+2. **Refresh Token em Cookie `HttpOnly`**:
+   - Expira em **7 dias**.
+   - Possui as flags `HttpOnly = true`, `Secure = true` (em HTTPS), `SameSite = SameSiteMode.Lax` e `Path = "/api/v1/auth"`.
+   - Scripts JavaScript **não possuem acesso de leitura** a esse cookie.
+   - O escopo restrito (`Path = "/api/v1/auth"`) assegura que o cookie só trafegue em rotas de renovação e logout.
+3. **Rotação de Refresh Token (OWASP)**:
+   - A cada chamada ao `/api/v1/auth/refresh`, o token anterior é invalidado no banco (`RevokedAt = DateTime.UtcNow`) e um novo token é emitido.
+   - Se um token comprometido tentar ser reutilizado, o sistema detecta a violação e encerra a sessão.
+4. **CORS com Suporte a Credenciais**:
+   - Política `AllowFrontend` com `.AllowCredentials()` e origens locais explícitas permitidas em desenvolvimento (`localhost:3000`, `localhost:5173`, etc.).
+5. **Pipeline com `AddJwtBearer`**:
+   - `app.UseAuthentication()` configurado antes de `app.UseAuthorization()`, validando assinaturas com `ClockSkew = TimeSpan.Zero`.
+6. **Criptografia BCrypt**:
+   - Senhas criptografadas com `BCrypt.Net-Next` com salt automático.
 
 ---
 
-## 🧪 Testes Manuais com `BackEnd.http`
+## 🧪 Como o Front-End Deve Consumir
 
-O arquivo `BackEnd.http` na raiz do projeto permite testar endpoints diretamente do Visual Studio, VS Code (com extensão REST Client) ou JetBrains Rider.
-
-Exemplo de teste de IA:
-```http
-POST http://localhost:5263/api/v1/ai/completion
-Content-Type: application/json
-Accept: application/json
-
-{
-  "model": "devQuest",
-  "messages": [
-    {
-      "role": "user",
-      "content": "Olá! Responda apenas: Conexão bem-sucedida!"
-    }
-  ],
-  "temperature": 0.7,
-  "stream": false
-}
-```
+1. **Configuração de Requisições (com envio de cookies)**:
+   - **Axios**: `axios.defaults.withCredentials = true;`
+   - **Fetch API**: `fetch(url, { credentials: 'include', ... })`
+2. **Armazenamento**:
+   - Guarde o `dados.token` em um estado (`useState` ou store global).
+3. **Persistência ao Recarregar a Página (F5)**:
+   - Ao iniciar a aplicação front-end, chame silenciosamente `POST /api/v1/auth/refresh`. Se o cookie for válido, a sessão é restaurada na RAM sem pedir nova senha ao usuário.
+4. **Interceptor de Renovação Automática**:
+   - Configure o interceptor de resposta para capturar `401 Unauthorized`, chamar `/api/v1/auth/refresh` e repetir a requisição original com o novo token de acesso.
 
 ---
 
 ## 🐳 Containerização com Docker (Multi-Stage Build)
 
-A aplicação conta com um [Dockerfile](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/Dockerfile) configurado com a estratégia de **Multi-Stage Build**, seguindo as melhores práticas da indústria:
+A aplicação conta com um [Dockerfile](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/Dockerfile) configurado com a estratégia de **Multi-Stage Build**:
 
-- **Estágio `builder` (`dotnet/sdk:10.0`)**:
-  - Restaura as dependências NuGet a partir do [BackEnd.csproj](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/BackEnd.csproj) aproveitando o cache de camadas do Docker.
-  - Compila e gera a publicação otimizada em modo `Release` (`dotnet publish`).
-- **Estágio `runtime` (`dotnet/aspnet:10.0`)**:
-  - Imagem final enxuta contendo apenas o runtime e os binários compilados (sem SDK, compilador, código-fonte ou arquivos temporários).
-  - **Segurança**: Execução configurada com o usuário não-root `app` (`USER app`), reduzindo a superfície de risco.
-  - **Contexto Otimizado**: Arquivo [.dockerignore](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/.dockerignore) configurado para filtrar diretórios locais como `bin/`, `obj/`, arquivos de configuração sensíveis e git.
+- **Estágio `builder` (`dotnet/sdk:10.0`)**: Restaura dependências, compila e gera os binários otimizados com cache de camadas.
+- **Estágio `runtime` (`dotnet/aspnet:10.0`)**: Imagem final leve contendo apenas o runtime necessário, executando com o usuário não-root `app` (`USER app`).
 
 ### Como Construir e Executar
-
-#### 1. Construir a Imagem Docker
 ```bash
+# Construir a imagem
 docker build -t devquest-backend:latest .
-```
 
-#### 2. Executar o Contêiner
-```bash
+# Executar o contêiner
 docker run -d \
   --name devquest-api \
   -p 8080:8080 \
@@ -341,19 +408,19 @@ docker run -d \
   devquest-backend:latest
 ```
 
-> **Acesso**: A API estará disponível na porta `8080` (ex: `http://localhost:8080/swagger` ou rotas `/api/v1/...`).
-
 ---
 
 ## 📌 Status e Próximos Passos Sugeridos
 
 - [x] Arquitetura em camadas com Injeção de Dependências.
 - [x] Autenticação e cadastro com hash de senha BCrypt.
-- [x] Serviço de geração de tokens JWT.
+- [x] Geração e validação de tokens JWT (Access Token de 15 minutos).
+- [x] Refresh Token persistido com Rotação Automática (OWASP) e Cookie `HttpOnly`.
+- [x] Endpoints `/api/v1/auth/refresh` e `/api/v1/auth/logout`.
+- [x] Pipeline de Autenticação JWT Bearer configurado nativamente no ASP.NET Core (`Program.cs`).
+- [x] CORS configurado com suporte a Cookies HttpOnly (`AllowCredentials`).
 - [x] Integração desacoplada e observável com IA (OpenRouter).
 - [x] Middleware global para tratamento de exceções.
 - [x] Containerização com Docker e Multi-Stage Build otimizado.
-- [ ] Ativar proteção de rotas privadas com atributo `[Authorize]` nos endpoints necessários.
-- [ ] Gerar e retornar o token JWT também no endpoint de Login (`AuthService.Authenticate`).
+- [ ] Ativar proteção de rotas privadas com atributo `[Authorize]` nos endpoints necessários (ex: criação de perfis e tópicos).
 - [ ] Implementar política de Rate Limiting nativa no endpoint de IA para evitar abusos de requisições.
-
