@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import gsap from "gsap";
-import { AreaCardItem, PresentationStep } from "../types/presentation.types";
+import { AreaCardItem, PresentationStep } from "../Types/Presentation.types";
 
 interface ZoomBox {
   top: number;

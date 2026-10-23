@@ -4,9 +4,9 @@ import { useState } from "react";
 
 import Link from "next/link";
 import { Check, Eye, EyeOff, Lock, LogIn, Mail, User } from "lucide-react";
-import { useRegister } from "@/Features/Auth/hooks/useRegister";
-import { CardError } from "@/Features/Auth/components/cardError";
-import { CardSuccess } from "@/Features/Auth/components/cardSuccess";
+import { useRegister } from "@/Features/Auth/Hooks/useRegister";
+import { CardError } from "@/Features/Auth/Components/CardError";
+import { CardSuccess } from "@/Features/Auth/Components/CardSuccess";
 
 
 export function AuthRegisterForm() {

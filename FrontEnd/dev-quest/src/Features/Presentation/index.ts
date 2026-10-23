@@ -1,6 +1,6 @@
-export { PresentationPage } from "./page";
-export { AreaSelectedScreen } from "./components/AreaSelectedScreen";
-export { AnimatedPhrase } from "./components/AnimatedPhrase";
-export { CardStacks } from "./components/CardStacks";
-export { usePresentationFlow } from "./Hook/usePresentationFlow";
-export * from "./types/presentation.types";
+export { PresentationPage, PresentationPage as PresentationView } from "./PresentationView";
+export { AreaSelectedScreen } from "./Components/AreaSelectedScreen";
+export { AnimatedPhrase } from "./Components/AnimatedPhrase";
+export { CardStacks } from "./Components/CardStacks";
+export { usePresentationFlow } from "./Hooks/usePresentationFlow";
+export * from "./Types/Presentation.types";

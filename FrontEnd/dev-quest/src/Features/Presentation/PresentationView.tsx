@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { AnimatedPhrase } from "./components/AnimatedPhrase";
-import { AreaSelectedScreen } from "./components/AreaSelectedScreen";
-import { usePresentationFlow } from "./Hook/usePresentationFlow";
+import { AnimatedPhrase } from "./Components/AnimatedPhrase";
+import { AreaSelectedScreen } from "./Components/AreaSelectedScreen";
+import { usePresentationFlow } from "./Hooks/usePresentationFlow";
 
 export function PresentationPage() {
   const {
@@ -105,3 +105,5 @@ export function PresentationPage() {
     </div>
   );
 }
+
+export const PresentationView = PresentationPage;

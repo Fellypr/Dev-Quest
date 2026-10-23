@@ -1,6 +1,6 @@
-import {AuthFormRegisterSide} from "@/Features/Auth/cadastro/components/AuthFormRegisterSide"
-import {AuthRegisterForm} from "@/Features/Auth/cadastro/components/AuthRegisterForm"
-export function AuthCadastroPage(){
+import {AuthFormRegisterSide} from "@/Features/Auth/Register/Components/AuthFormRegisterSide"
+import {AuthRegisterForm} from "@/Features/Auth/Register/Components/AuthRegisterForm"
+export function RegisterView(){
     return(
         <div className="min-h-screen bg-[#020617] text-white">
               <div className="relative isolate grid min-h-screen overflow-hidden lg:grid-cols-[minmax(0,1.08fr)_minmax(26rem,0.92fr)]">
@@ -11,3 +11,5 @@ export function AuthCadastroPage(){
             </div>
     )
 }
+
+export const AuthCadastroPage = RegisterView;

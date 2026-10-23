@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PracticeAreaCarousel } from "@/components/PracticeAreaCarousel";
-import { AreaCardItem, DEFAULT_PRACTICE_CARDS } from "../types/presentation.types";
+import { AreaCardItem, DEFAULT_PRACTICE_CARDS } from "../Types/Presentation.types";
 
 interface AnimatedPhraseProps {
   onSelectCard?: (card: AreaCardItem, cardElement: HTMLElement) => void;

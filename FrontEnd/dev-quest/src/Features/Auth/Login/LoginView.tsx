@@ -1,6 +1,6 @@
-import {AuthLoginForm} from "@/Features/Auth";
+import {AuthLoginForm} from "./Components/AuthLoginForm";
 
-export function AuthLoginPage() {
+export function LoginView() {
   return (
     <div className="min-h-screen bg-[#020617] text-white">
       <div className="relative isolate grid min-h-screen overflow-hidden">
@@ -10,3 +10,5 @@ export function AuthLoginPage() {
     </div>
   );
 }
+
+export const AuthLoginPage = LoginView;

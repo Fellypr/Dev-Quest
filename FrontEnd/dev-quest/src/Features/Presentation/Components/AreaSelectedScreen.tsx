@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { AreaCardItem } from "../types/presentation.types";
+import { AreaCardItem } from "../Types/Presentation.types";
 import { CardStacks } from "./CardStacks";
 import { LanguageCarousel } from "@/components/LanguageCarousel";
 

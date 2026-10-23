@@ -1,3 +1,3 @@
-export {AuthLoginForm} from "@/Features/Auth/login/components/AuthLoginForm";
-export {AuthLoginPage} from "@/Features/Auth/login/page";
-export {AuthCadastroPage} from "@/Features/Auth/cadastro/page"
+export {AuthLoginForm} from "@/Features/Auth/Login/Components/AuthLoginForm";
+export {LoginView as AuthLoginPage} from "@/Features/Auth/Login/LoginView";
+export {RegisterView as AuthCadastroPage, RegisterView as AuthRegisterPage} from "@/Features/Auth/Register/RegisterView";

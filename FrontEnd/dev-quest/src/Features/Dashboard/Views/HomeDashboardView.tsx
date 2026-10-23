@@ -1,5 +1,5 @@
-import { CartaDeBoasVindasDashboard } from "../components/cartaDeboasVindas";
-import { CartaDeConviteRoadmap } from "../components/cartaConviteRoadmap";
+import { CartaDeBoasVindasDashboard } from "../Components/WelcomeCard";
+import { CartaDeConviteRoadmap } from "../Components/RoadmapInviteCard";
 
 type HomeDashboardViewProps = {
   onCreateRoadmap: () => void;

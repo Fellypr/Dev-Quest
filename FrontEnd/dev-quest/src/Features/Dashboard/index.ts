@@ -1,1 +1,1 @@
-export {DashboardMain} from "@/Features/Dashboard/page"
+export {DashboardMain} from "@/Features/Dashboard/DashboardView";

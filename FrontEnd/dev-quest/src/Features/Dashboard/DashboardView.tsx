@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { SideBar } from "./components/sideBar";
-import { HeaderDashboard } from "./components/headerDashboard";
-import { HomeDashboardView } from "./views/HomeDashboardView";
-import { CriarRoadmapView } from "./views/CriarRoadmapView";
+import { SideBar } from "./Components/SideBar";
+import { HeaderDashboard } from "./Components/HeaderDashboard";
+import { HomeDashboardView } from "./Views/HomeDashboardView";
+import { CriarRoadmapView } from "./Views/CreateRoadmapView";
 
 type DashboardView = "home" | "criar-roadmap";
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {usePostApiVversionAuthLogin } from "@/api/generated/hooks/auth-v1/auth-v1";
-import { userLoginSchema, type userLoginType } from "../schemas/userLogin.schema";
+import { userLoginSchema, type userLoginType } from "../Schemas/UserLogin.schema";
 import { useRouter } from 'next/navigation'
 
 export const useLogin = () => {

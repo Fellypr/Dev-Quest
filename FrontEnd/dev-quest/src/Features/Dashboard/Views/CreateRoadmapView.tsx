@@ -57,3 +57,5 @@ export function CriarRoadmapView({ onBack }: CriarRoadmapViewProps) {
     </section>
   );
 }
+
+export const CreateRoadmapView = CriarRoadmapView;

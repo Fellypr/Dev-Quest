@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
 import { Check, Eye, EyeOff, Lock, LogIn, Mail } from "lucide-react";
-import { useLogin } from "@/Features/Auth/hooks/useLogin";
-import { CardSuccess } from "../../components/cardSuccess";
-import { CardError } from "../../components/cardError";
+import { useLogin } from "@/Features/Auth/Hooks/useLogin";
+import { CardSuccess } from "@/Features/Auth/Components/CardSuccess";
+import { CardError } from "@/Features/Auth/Components/CardError";
 
 export function AuthLoginForm() {
   const {

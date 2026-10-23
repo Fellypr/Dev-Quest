@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Bot, Code2, Map } from "lucide-react";
-import { TypewriterText } from "@/Features/Auth/login/components/TypewriterText";
+import { TypewriterText } from "@/Features/Auth/Login/Components/TypewriterText";
 
 const features = [
   {
