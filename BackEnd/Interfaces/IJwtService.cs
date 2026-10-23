@@ -1,6 +1,11 @@
 using BackEnd.Models;
 
-public interface IJwtService
+namespace BackEnd.interfaces
 {
-    string GenerateToken(Users user, bool rememberMe = false);
+    public interface IJwtService
+    {
+        string GenerateAccessToken(Users user);
+        RefreshToken GenerateRefreshToken(int userId);
+        string GenerateToken(Users user, bool rememberMe = false);
+    }
 }

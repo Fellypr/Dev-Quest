@@ -1,7 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using BackEnd.Configuration;
+using BackEnd.interfaces;
 using BackEnd.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -17,22 +19,22 @@ namespace BackEnd.services
             _jwtSettings = jwtSettings.Value;
         }
 
-        public string GenerateToken(Users user, bool rememberMe = false)
+        public string GenerateAccessToken(Users user)
         {
             if (string.IsNullOrWhiteSpace(_jwtSettings.Key))
             {
                 throw new InvalidOperationException("A chave JWT não foi configurada.");
             }
 
-            var expires = rememberMe
-                ? DateTime.UtcNow.AddDays(7)
-                : DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes);
+            var expirationMinutes = _jwtSettings.ExpirationMinutes > 0 ? _jwtSettings.ExpirationMinutes : 15;
+            var expires = DateTime.UtcNow.AddMinutes(expirationMinutes);
 
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Email, user.Email)
@@ -50,6 +52,25 @@ namespace BackEnd.services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public RefreshToken GenerateRefreshToken(int userId)
+        {
+            var expirationDays = _jwtSettings.RefreshTokenExpirationDays > 0 ? _jwtSettings.RefreshTokenExpirationDays : 7;
+            var randomBytes = RandomNumberGenerator.GetBytes(64);
+
+            return new RefreshToken
+            {
+                UserId = userId,
+                Token = Convert.ToBase64String(randomBytes),
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddDays(expirationDays)
+            };
+        }
+
+        public string GenerateToken(Users user, bool rememberMe = false)
+        {
+            return GenerateAccessToken(user);
         }
     }
 }

@@ -1,5 +1,6 @@
 ```mermaid
 erDiagram
+    Users ||..o{ RefreshTokens : has
     Users ||..o{ UserTechProfile : has
     UserTechProfile ||..o{ RoadmapTopics : has
     RoadmapTopics ||..o{ RoadmapLessons : has
@@ -10,6 +11,14 @@ erDiagram
         string Email
         string Password
         string Level
+    }
+    RefreshTokens {
+        int Id PK
+        int UserId FK
+        string Token
+        datetime ExpiresAt
+        datetime CreatedAt
+        datetime RevokedAt
     }
     UserTechProfile {
         int RoadmapId PK
