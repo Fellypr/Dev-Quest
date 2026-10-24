@@ -115,7 +115,7 @@ export function WheelCarousel({
   photoWidth = 24,
   photoAspect = "3/4",
   contentWidth = 900,
-  gap = 0,
+  gap = 50,
   photoRadius = 14,
   crossfadeDuration = 0.5,
   radius = 320,
@@ -127,7 +127,7 @@ export function WheelCarousel({
   showMarker = true,
   markerColor = "rgb(232, 121, 46)",
   markerSize = 16,
-  markerGap = 20,
+  markerGap = 15,
   background = "rgb(255, 246, 236)",
   panelColor,
   scrollSpeed = 0.008,
@@ -380,7 +380,7 @@ export function WheelCarousel({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: reduceMotion ? 0 : 0.7, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "flex h-full min-h-[420px] w-full items-center justify-center overflow-hidden",
+        "flex h-full min-h-[420px] w-full items-center justify-center overflow-hidden ml-70 ",
         className,
       )}
       style={{ backgroundColor: palette.background }}

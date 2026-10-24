@@ -66,14 +66,12 @@ export function PresentationPage() {
         />
       </div>
 
-      {/* Frases e Carrossel: mantidos montados para não reiniciar o fluxo do zero */}
       <AnimatedPhrase
         onSelectCard={startZoomTransition}
         isZoomingIn={isZoomingIn}
         skipIntro={hasSelectedOnce}
       />
 
-      {/* Tela final após o zoom in */}
       {isSelected && selectedCard && (
         <div className="fixed inset-0 z-40">
           <AreaSelectedScreen
@@ -83,7 +81,7 @@ export function PresentationPage() {
         </div>
       )}
 
-      {/* Overlay de Zoom imersivo com GSAP (Apenas durante as transições de zoom) */}
+      
       {!isSelected && zoomBox && (
         <div
           ref={zoomOverlayRef}

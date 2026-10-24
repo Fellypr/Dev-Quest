@@ -107,7 +107,7 @@ export function LanguageCarousel({
   markerColor = "#6C63FF",
   photoAspect = "3/4",
   photoRadius = 16,
-  photoWidth = 28,
+  photoWidth = 38,
   contentWidth = 960,
   ...rest
 }: LanguageCarouselProps) {

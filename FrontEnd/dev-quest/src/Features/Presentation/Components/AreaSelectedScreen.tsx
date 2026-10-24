@@ -144,7 +144,7 @@ export function AreaSelectedScreen({
               </div>
 
               {/* Ações Inferiores: Continuar e Voltar */}
-              <div className="mt-6 flex flex-col items-center w-full max-w-[370px]">
+              <div className="flex flex-col items-center w-full max-w-[370px]">
                 <button
                   onClick={handleContinueLanguage}
                   className="w-full h-[51px] rounded-[26px] bg-[#5B4FCF] hover:bg-[#6C60E0] active:scale-[0.98] transition-all flex items-center justify-center gap-3.5 text-white font-semibold text-[15px] cursor-pointer shadow-lg shadow-[#5B4FCF]/30"
