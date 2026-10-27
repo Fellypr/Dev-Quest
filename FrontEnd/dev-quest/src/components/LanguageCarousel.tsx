@@ -228,6 +228,7 @@ export function getLanguagesByArea(
 export interface LanguageCarouselProps
   extends Omit<WheelCarouselProps, "items"> {
   items?: WheelCarouselItem[];
+  areaLabel?: string;
   stack?: "frontend" | "backend" | "fullstack";
   fullstackPhase?: "frontend" | "backend";
   centerImage?: string;
@@ -235,6 +236,7 @@ export interface LanguageCarouselProps
 
 export function LanguageCarousel({
   items,
+  areaLabel,
   stack,
   fullstackPhase = "frontend",
   centerImage = DEFAULT_SERVER_RACK_IMAGE,
@@ -252,20 +254,33 @@ export function LanguageCarousel({
   className,
   ...rest
 }: LanguageCarouselProps) {
-  // Determina a visualização ativa: "frontend" ou "backend"
+  const isWebWithStack = Boolean(stack);
+
+  // Determina a visualização ativa para web com stack
   const currentView: "frontend" | "backend" = useMemo(() => {
     if (stack === "backend") return "backend";
     if (stack === "fullstack") return fullstackPhase;
     return "frontend";
   }, [stack, fullstackPhase]);
 
-  // Se não forem passados itens customizados, resolve com base na stack/view
+  // Se não forem passados itens customizados, resolve com base na área e stack
   const resolvedItems = useMemo(() => {
     if (items && items.length > 0) return items;
-    return getLanguagesByArea("web", stack, fullstackPhase);
-  }, [items, stack, fullstackPhase]);
+    return getLanguagesByArea(areaLabel || "web", stack, fullstackPhase);
+  }, [items, areaLabel, stack, fullstackPhase]);
 
-  const isFrontEnd = currentView === "frontend";
+  const isFrontEnd = !isWebWithStack || currentView === "frontend";
+
+  // Label amigável do lado esquerdo quando não for Web (ex: "Mobile", "Data Science")
+  const leftLabel = useMemo(() => {
+    if (isWebWithStack) return "FrontEnd";
+    if (areaLabel) {
+      if (areaLabel.toLowerCase().includes("mobile")) return "Mobile";
+      if (areaLabel.toLowerCase().includes("data")) return "Data Science";
+      return areaLabel.replace(/^Desenvolvimento\s+/i, "");
+    }
+    return "Mobile";
+  }, [isWebWithStack, areaLabel]);
 
   return (
     <div className={`relative w-full max-w-[1100px] flex items-center justify-center ${className || "h-[340px] sm:h-[380px]"}`}>
@@ -288,7 +303,7 @@ export function LanguageCarousel({
                 className="w-full flex items-center justify-end pr-8 sm:pr-12"
               >
                 <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                  FrontEnd
+                  {leftLabel}
                 </h3>
               </motion.div>
             ) : (

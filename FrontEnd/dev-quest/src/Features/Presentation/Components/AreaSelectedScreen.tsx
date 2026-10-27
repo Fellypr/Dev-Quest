@@ -39,14 +39,16 @@ export function AreaSelectedScreen({
   const [mounted, setMounted] = useState(false);
   const isWebTrack = card.label.toLowerCase().includes("web");
 
-  // Passos: "experience" -> "stack" (se web) -> "language"
+  // Passos: "experience" -> "stack" (apenas se web) -> "language"
   const [currentStep, setCurrentStep] = useState<"experience" | "stack" | "language">(
     "experience"
   );
   const [selectedLevel, setSelectedLevel] = useState<string>(initialLevel);
-  const [selectedStack, setSelectedStack] = useState<StackOptionId>("fullstack");
+  const [selectedStack, setSelectedStack] = useState<StackOptionId | undefined>(
+    isWebTrack ? "fullstack" : undefined
+  );
 
-  // Para o fluxo Full-Stack: 1º FrontEnd -> 2º BackEnd
+  // Para o fluxo Full-Stack (apenas em Web): 1º FrontEnd -> 2º BackEnd
   const [fullstackPhase, setFullstackPhase] = useState<"frontend" | "backend">(
     "frontend"
   );
@@ -55,11 +57,18 @@ export function AreaSelectedScreen({
     initialLanguage || "Bootstrap"
   );
   const [backendLang, setBackendLang] = useState<string>("Perl");
+  const [generalLang, setGeneralLang] = useState<string>(() => {
+    if (initialLanguage) return initialLanguage;
+    const langs = getLanguagesByArea(card.label);
+    return langs[0]?.label || "Swift";
+  });
+
+  const isFullstack = isWebTrack && selectedStack === "fullstack";
 
   // Filtra as tecnologias apropriadas para a etapa atual
   const curatedLanguages = useMemo(() => {
-    return getLanguagesByArea(card.label, selectedStack, fullstackPhase);
-  }, [card.label, selectedStack, fullstackPhase]);
+    return getLanguagesByArea(card.label, isWebTrack ? selectedStack : undefined, fullstackPhase);
+  }, [card.label, isWebTrack, selectedStack, fullstackPhase]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -94,6 +103,10 @@ export function AreaSelectedScreen({
   };
 
   const handleLanguageActiveChange = (label: string) => {
+    if (!isWebTrack) {
+      setGeneralLang(label);
+      return;
+    }
     if (selectedStack === "frontend") {
       setFrontendLang(label);
     } else if (selectedStack === "backend") {
@@ -109,8 +122,8 @@ export function AreaSelectedScreen({
   };
 
   const handleContinueLanguage = () => {
-    // Se for Fullstack e estiver na fase 1 (frontend), transiciona com animação para o backend
-    if (selectedStack === "fullstack" && fullstackPhase === "frontend") {
+    // Se for Fullstack na Web e estiver na fase 1 (frontend), transiciona com animação para o backend
+    if (isFullstack && fullstackPhase === "frontend") {
       setFullstackPhase("backend");
       return;
     }
@@ -118,10 +131,10 @@ export function AreaSelectedScreen({
     if (isSubmitting) return;
     setIsSubmitting(true);
 
-    const primaryLanguage =
-      selectedStack === "backend" ? backendLang : frontendLang;
-    const secondaryLanguage =
-      selectedStack === "fullstack" ? backendLang : undefined;
+    const primaryLanguage = isWebTrack
+      ? (selectedStack === "backend" ? backendLang : frontendLang)
+      : generalLang;
+    const secondaryLanguage = isFullstack ? backendLang : undefined;
 
     onComplete?.({
       area: card,
@@ -134,7 +147,7 @@ export function AreaSelectedScreen({
   };
 
   const handleBackFromLanguage = () => {
-    if (selectedStack === "fullstack" && fullstackPhase === "backend") {
+    if (isFullstack && fullstackPhase === "backend") {
       // No Fullstack, volta suavemente do backend para o frontend
       setFullstackPhase("frontend");
       return;
@@ -235,8 +248,23 @@ export function AreaSelectedScreen({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
-              className="w-full flex flex-col items-center justify-center py-4"
+              className="w-full flex flex-col items-center justify-center py-4 relative"
             >
+              {/* Botão Superior Voltar (Glassmorphism no canto superior esquerdo) */}
+              <button
+                onClick={handleBackFromLanguage}
+                disabled={isSubmitting}
+                className="fixed top-6 left-6 sm:top-8 sm:left-10 z-40 flex items-center gap-2 px-3.5 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all text-xs sm:text-sm font-medium cursor-pointer shadow-lg disabled:opacity-40 select-none"
+              >
+                <Image
+                  src="/images/experience/arrow-left.svg"
+                  alt=""
+                  width={14}
+                  height={14}
+                />
+                <span>Voltar</span>
+              </button>
+
               {/* Título e Subtítulo */}
               <div className="max-w-[750px] w-full text-center flex flex-col items-center mb-4 sm:mb-6">
                 <span className="text-xs uppercase tracking-widest text-[#7c75ff] font-semibold mb-1">
@@ -253,17 +281,19 @@ export function AreaSelectedScreen({
               {/* LanguageCarousel perfeitamente orquestrado com as imagens de referência */}
               <div className="w-full max-w-[1020px] flex items-center justify-center my-2">
                 <LanguageCarousel
-                  key={`carousel-${card.label}-${selectedStack}-${fullstackPhase}`}
+                  key={`carousel-${card.label}-${selectedStack || "default"}-${fullstackPhase}`}
                   items={curatedLanguages}
+                  areaLabel={card.label}
                   stack={isWebTrack ? selectedStack : undefined}
                   fullstackPhase={fullstackPhase}
+                  centerImage={card.image}
                   background="transparent"
                   onActiveChange={(item) => handleLanguageActiveChange(item.label)}
                 />
               </div>
 
-              {/* Ações Inferiores: Continuar e Voltar */}
-              <div className="flex flex-col items-center w-full max-w-[370px] mt-6">
+              {/* Ação Inferior: Continuar ou Iniciar Jornada */}
+              <div className="flex flex-col mb-10 items-center w-full max-w-[370px] mt-6">
                 <button
                   onClick={handleContinueLanguage}
                   disabled={isSubmitting}
@@ -293,7 +323,7 @@ export function AreaSelectedScreen({
                       </svg>
                       Criando sua jornada...
                     </span>
-                  ) : selectedStack === "fullstack" && fullstackPhase === "frontend" ? (
+                  ) : isFullstack && fullstackPhase === "frontend" ? (
                     <>
                       <span>Continuar</span>
                       <Image
@@ -314,20 +344,6 @@ export function AreaSelectedScreen({
                       />
                     </>
                   )}
-                </button>
-
-                <button
-                  onClick={handleBackFromLanguage}
-                  disabled={isSubmitting}
-                  className="mt-4 flex items-center justify-center gap-1.5 text-[#d1d1d1c8] hover:text-white transition-colors text-[13px] font-medium cursor-pointer py-1 px-3 disabled:opacity-50"
-                >
-                  <Image
-                    src="/images/experience/arrow-left.svg"
-                    alt=""
-                    width={14}
-                    height={14}
-                  />
-                  <span>Voltar</span>
                 </button>
               </div>
             </motion.div>
