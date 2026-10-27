@@ -27,6 +27,8 @@ export interface WheelCarouselProps {
   items?: WheelCarouselItem[];
   mode?: WheelCarouselMode;
   photoSide?: "left" | "right";
+  wheelSide?: "left" | "right";
+  showPhoto?: boolean;
   photoWidth?: number;
   photoAspect?: "3/4" | "1/1" | "4/3" | "3/2";
   contentWidth?: number;
@@ -112,7 +114,9 @@ export function WheelCarousel({
   items = wheelCarouselDefaultItems,
   mode = "system",
   photoSide = "left",
-  photoWidth = 24,
+  wheelSide,
+  showPhoto = true,
+  photoWidth = 20,
   photoAspect = "3/4",
   contentWidth = 900,
   gap = 50,
@@ -152,6 +156,8 @@ export function WheelCarousel({
     () => true,
     () => false,
   );
+  const resolvedWheelSide = wheelSide ?? (photoSide === "right" ? "left" : "right");
+  const isLeftWheel = resolvedWheelSide === "left";
   const resolvedMode =
     mode === "system"
       ? themeReady && resolvedTheme === "dark"
@@ -380,7 +386,7 @@ export function WheelCarousel({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: reduceMotion ? 0 : 0.7, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "flex h-full min-h-[420px] w-full items-center justify-center overflow-hidden ml-70 ",
+        "flex h-full min-h-[380px] w-full items-center justify-center overflow-hidden",
         className,
       )}
       style={{ backgroundColor: palette.background }}
@@ -408,39 +414,41 @@ export function WheelCarousel({
         onPointerCancel={handlePointerEnd}
         onKeyDown={handleKeyDown}
       >
-        <div
-          className="flex h-full shrink-0 items-center justify-center"
-          style={{
-            width: `${photoWidth}%`,
-            backgroundColor: palette.background,
-          }}
-        >
+        {showPhoto && (
           <div
-            className={cn(
-              "relative w-full max-h-full overflow-hidden",
-              photoClassName,
-            )}
+            className="flex h-full shrink-0 items-center justify-center"
             style={{
-              aspectRatio: aspectRatios[photoAspect],
-              borderRadius: photoRadius,
-              backgroundColor: palette.panel,
+              width: `${photoWidth}%`,
+              backgroundColor: palette.background,
             }}
           >
-            <AnimatePresence initial={false} mode="sync">
-              <motion.img
-                key={`${safeSelectedIndex}-${selectedItem.image}`}
-                src={selectedItem.image}
-                alt={selectedItem.imageAlt ?? selectedItem.label}
-                initial={reduceMotion ? false : { opacity: 0, scale: 1.04 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: reduceMotion ? 0 : crossfadeDuration }}
-                className="absolute inset-0 h-full w-full object-cover"
-                draggable={false}
-              />
-            </AnimatePresence>
+            <div
+              className={cn(
+                "relative w-full max-h-full overflow-hidden",
+                photoClassName,
+              )}
+              style={{
+                aspectRatio: aspectRatios[photoAspect],
+                borderRadius: photoRadius,
+                backgroundColor: palette.panel,
+              }}
+            >
+              <AnimatePresence initial={false} mode="sync">
+                <motion.img
+                  key={`${safeSelectedIndex}-${selectedItem.image}`}
+                  src={selectedItem.image}
+                  alt={selectedItem.imageAlt ?? selectedItem.label}
+                  initial={reduceMotion ? false : { opacity: 0, scale: 1.04 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: reduceMotion ? 0 : crossfadeDuration }}
+                  className="absolute inset-0 h-full w-full object-cover"
+                  draggable={false}
+                />
+              </AnimatePresence>
+            </div>
           </div>
-        </div>
+        )}
 
         <div
           className="relative h-full min-w-0 flex-1 overflow-hidden"
@@ -451,10 +459,12 @@ export function WheelCarousel({
               aria-hidden="true"
               className="absolute top-1/2 z-10 -translate-y-1/2 rounded-full"
               style={{
-                left: `calc(${apexInset}% - ${markerGap}px)`,
+                left: isLeftWheel ? undefined : `calc(${apexInset}% - ${markerGap}px)`,
+                right: isLeftWheel ? `calc(${apexInset}% - ${markerGap}px)` : undefined,
                 width: markerSize,
                 height: markerSize,
-                marginLeft: -markerSize,
+                marginLeft: isLeftWheel ? undefined : -markerSize,
+                marginRight: isLeftWheel ? -markerSize : undefined,
                 backgroundColor: palette.marker,
               }}
             />
@@ -466,8 +476,11 @@ export function WheelCarousel({
 
             const angle = offset * spacing;
             const radians = (angle * Math.PI) / 180;
-            const x = -radius * (1 - Math.cos(radians));
+            const x = isLeftWheel
+              ? radius * (1 - Math.cos(radians))
+              : -radius * (1 - Math.cos(radians));
             const y = radius * Math.sin(radians);
+            const rotateAngle = isLeftWheel ? -angle : angle;
             const distance = Math.min(Math.abs(offset) / visibleItems, 1);
             const opacity = Math.cos((distance * Math.PI) / 2);
             const scale = 1 - Math.min(Math.abs(offset) * 0.04, 0.45);
@@ -480,14 +493,16 @@ export function WheelCarousel({
                 role="option"
                 aria-selected={selected}
                 className={cn(
-                  "pointer-events-none absolute top-1/2 origin-left whitespace-nowrap text-[clamp(1rem,2.4vw,1.625rem)] font-medium leading-none tracking-[-0.01em]",
+                  "pointer-events-none absolute top-1/2 whitespace-nowrap text-[clamp(1rem,2.4vw,1.625rem)] font-medium leading-none tracking-[-0.01em]",
+                  isLeftWheel ? "origin-right text-right" : "origin-left text-left",
                   itemClassName,
                 )}
                 style={{
-                  left: `${apexInset}%`,
+                  left: isLeftWheel ? undefined : `${apexInset}%`,
+                  right: isLeftWheel ? `${apexInset}%` : undefined,
                   color: selected ? palette.selected : palette.text,
                   opacity,
-                  transform: `translate(${x}px, ${y}px) translateY(-50%) rotate(${angle}deg) scale(${scale})`,
+                  transform: `translate(${x}px, ${y}px) translateY(-50%) rotate(${rotateAngle}deg) scale(${scale})`,
                 }}
               >
                 {item.label}

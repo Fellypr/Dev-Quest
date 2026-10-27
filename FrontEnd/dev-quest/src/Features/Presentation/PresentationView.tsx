@@ -1,11 +1,17 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { AnimatedPhrase } from "./Components/AnimatedPhrase";
 import { AreaSelectedScreen } from "./Components/AreaSelectedScreen";
 import { usePresentationFlow } from "./Hooks/usePresentationFlow";
+import { useUserPreferences } from "./Hooks/useUserPreferences";
+import { UserOnboardingPreferences } from "./Types/Presentation.types";
 
 export function PresentationPage() {
+  const router = useRouter();
+  const { preferences, setPreferences } = useUserPreferences();
+
   const {
     step,
     selectedCard,
@@ -18,6 +24,28 @@ export function PresentationPage() {
   const isSelected = step === "selected";
   const isZoomingIn = step === "zooming_in";
   const hasSelectedOnce = step !== "intro";
+
+  const handleComplete = (data: UserOnboardingPreferences) => {
+    // 1. Persiste as escolhas no storage/evento global
+    setPreferences(data);
+
+    // 2. Redireciona o usuário para o rumo personalizado no Dashboard
+    const params = new URLSearchParams({
+      area: data.area.label,
+      level: data.level,
+      lang: data.language,
+    });
+
+    if (data.stack) {
+      params.set("stack", data.stack);
+    }
+    if (data.secondaryLanguage) {
+      params.set("secLang", data.secondaryLanguage);
+    }
+
+    router.push(`/Dashboard?${params.toString()}`);
+  };
+
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-[#020308] text-white">
@@ -77,9 +105,13 @@ export function PresentationPage() {
           <AreaSelectedScreen
             card={selectedCard}
             onBack={startZoomOutTransition}
+            onComplete={handleComplete}
+            initialLevel={preferences?.level}
+            initialLanguage={preferences?.language}
           />
         </div>
       )}
+
 
       
       {!isSelected && zoomBox && (

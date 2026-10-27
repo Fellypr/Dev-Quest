@@ -13,6 +13,58 @@ export type PresentationStep =
   | "selected"
   | "zooming_out";
 
+export type ExperienceLevelId =
+  | "estagiario"
+  | "junior"
+  | "pleno"
+  | "senior";
+
+export type StackOptionId = "frontend" | "backend" | "fullstack";
+
+export interface StackOption {
+  id: StackOptionId;
+  title: string;
+  description: string;
+  backgroundImage: string;
+  color: string;
+}
+
+export const STACK_OPTIONS: StackOption[] = [
+  {
+    id: "frontend",
+    title: "Front-End",
+    description:
+      "Foco em interfaces, experiência do usuário e tecnologias como HTML, CSS, React e JavaScript.",
+    backgroundImage: "/images/Web_developer_typing_at_desk__web_.jpg",
+    color: "#6C63FF",
+  },
+  {
+    id: "backend",
+    title: "Back-End",
+    description:
+      "Foco em lógica de serviços, banco de dados, APIs e tecnologias como Node.js, Python e SQL.",
+    backgroundImage: "/images/backend_developer_desk.jpg",
+    color: "#00d2df",
+  },
+  {
+    id: "fullstack",
+    title: "Full-Stack",
+    description:
+      "Domínio de ambas as pontas, integrando o visual e a lógica de servidores com a lógica de dados.",
+    backgroundImage: "/images/fullstack_developer_desk.jpg",
+    color: "#8b5cf6",
+  },
+];
+
+export interface UserOnboardingPreferences {
+  area: AreaCardItem;
+  level: ExperienceLevelId | string;
+  stack?: StackOptionId;
+  language: string;
+  secondaryLanguage?: string;
+  completedAt?: string;
+}
+
 export const DEFAULT_PRACTICE_CARDS: AreaCardItem[] = [
   {
     color: "#6559ff",
@@ -28,3 +80,4 @@ export const DEFAULT_PRACTICE_CARDS: AreaCardItem[] = [
   },
   { color: "#ff3d52", label: "Data Science" },
 ];
+

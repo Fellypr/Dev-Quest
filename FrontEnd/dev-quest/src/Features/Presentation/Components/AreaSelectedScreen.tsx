@@ -1,16 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { AreaCardItem } from "../Types/Presentation.types";
+import {
+  AreaCardItem,
+  StackOptionId,
+  UserOnboardingPreferences,
+} from "../Types/Presentation.types";
 import { CardStacks } from "./CardStacks";
-import { LanguageCarousel } from "@/components/LanguageCarousel";
+import { StackSelection } from "./StackSelection";
+import { DynamicBackground } from "./DynamicBackground";
+import {
+  LanguageCarousel,
+  getLanguagesByArea,
+} from "@/components/LanguageCarousel";
 
 interface AreaSelectedScreenProps {
   card: AreaCardItem;
   onBack?: () => void;
-  onComplete?: (data: { level: string; language: string; card: AreaCardItem }) => void;
+  onComplete?: (data: UserOnboardingPreferences) => void;
+  initialLevel?: string;
+  initialLanguage?: string;
 }
 
 const DEFAULT_VIDEOS: Record<string, string> = {
@@ -22,11 +33,35 @@ export function AreaSelectedScreen({
   card,
   onBack,
   onComplete,
+  initialLevel = "estagiario",
+  initialLanguage,
 }: AreaSelectedScreenProps) {
   const [mounted, setMounted] = useState(false);
-  const [currentStep, setCurrentStep] = useState<"experience" | "language">("experience");
-  const [selectedLevel, setSelectedLevel] = useState<string>("estagiario");
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("JavaScript");
+  const isWebTrack = card.label.toLowerCase().includes("web");
+
+  // Passos: "experience" -> "stack" (se web) -> "language"
+  const [currentStep, setCurrentStep] = useState<"experience" | "stack" | "language">(
+    "experience"
+  );
+  const [selectedLevel, setSelectedLevel] = useState<string>(initialLevel);
+  const [selectedStack, setSelectedStack] = useState<StackOptionId>("fullstack");
+
+  // Para o fluxo Full-Stack: 1º FrontEnd -> 2º BackEnd
+  const [fullstackPhase, setFullstackPhase] = useState<"frontend" | "backend">(
+    "frontend"
+  );
+
+  const [frontendLang, setFrontendLang] = useState<string>(
+    initialLanguage || "Bootstrap"
+  );
+  const [backendLang, setBackendLang] = useState<string>("Perl");
+
+  // Filtra as tecnologias apropriadas para a etapa atual
+  const curatedLanguages = useMemo(() => {
+    return getLanguagesByArea(card.label, selectedStack, fullstackPhase);
+  }, [card.label, selectedStack, fullstackPhase]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 40);
@@ -36,29 +71,88 @@ export function AreaSelectedScreen({
   const videoUrl =
     card.videoUrl ||
     DEFAULT_VIDEOS[card.label] ||
-    (card.label.toLowerCase().includes("web")
+    (isWebTrack
       ? "/Video/Software_developer_web.mp4"
       : card.label.toLowerCase().includes("mobile")
         ? "/Video/Woman_coding_at_desk_mobile1080p.mp4"
         : undefined);
 
+  // Manipuladores de Navegação
   const handleContinueExperience = (level: string) => {
     setSelectedLevel(level);
+    if (isWebTrack) {
+      setCurrentStep("stack");
+    } else {
+      setCurrentStep("language");
+    }
+  };
+
+  const handleContinueStack = (stack: StackOptionId) => {
+    setSelectedStack(stack);
+    setFullstackPhase("frontend");
     setCurrentStep("language");
   };
 
+  const handleLanguageActiveChange = (label: string) => {
+    if (selectedStack === "frontend") {
+      setFrontendLang(label);
+    } else if (selectedStack === "backend") {
+      setBackendLang(label);
+    } else {
+      // Fullstack
+      if (fullstackPhase === "frontend") {
+        setFrontendLang(label);
+      } else {
+        setBackendLang(label);
+      }
+    }
+  };
+
   const handleContinueLanguage = () => {
+    // Se for Fullstack e estiver na fase 1 (frontend), transiciona com animação para o backend
+    if (selectedStack === "fullstack" && fullstackPhase === "frontend") {
+      setFullstackPhase("backend");
+      return;
+    }
+
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    const primaryLanguage =
+      selectedStack === "backend" ? backendLang : frontendLang;
+    const secondaryLanguage =
+      selectedStack === "fullstack" ? backendLang : undefined;
+
     onComplete?.({
+      area: card,
       level: selectedLevel,
-      language: selectedLanguage,
-      card,
+      stack: isWebTrack ? selectedStack : undefined,
+      language: primaryLanguage,
+      secondaryLanguage,
+      completedAt: new Date().toISOString(),
     });
+  };
+
+  const handleBackFromLanguage = () => {
+    if (selectedStack === "fullstack" && fullstackPhase === "backend") {
+      // No Fullstack, volta suavemente do backend para o frontend
+      setFullstackPhase("frontend");
+      return;
+    }
+
+    if (isWebTrack) {
+      setCurrentStep("stack");
+    } else {
+      setCurrentStep("experience");
+    }
   };
 
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-6 text-white overflow-y-auto overflow-x-hidden select-none bg-[#020308]">
-      {/* Plano de fundo com vídeo rodando infinitamente sem som */}
-      {videoUrl ? (
+      {/* Background Dinâmico Temático para Web ou Vídeo Padrão */}
+      {isWebTrack ? (
+        <DynamicBackground activeStack={selectedStack} cardColor={card.color} />
+      ) : videoUrl ? (
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
           <video
             autoPlay
@@ -70,7 +164,6 @@ export function AreaSelectedScreen({
           >
             <source src={videoUrl} type="video/mp4" />
           </video>
-          {/* Overlay escuro para contraste e nitidez com os cards */}
           <div className="absolute inset-0 bg-black/65 backdrop-blur-[1px]" />
           <div
             className="absolute inset-0 opacity-15 mix-blend-overlay"
@@ -93,14 +186,14 @@ export function AreaSelectedScreen({
         </div>
       )}
 
-      {/* Conteúdo com transição suave entre Experiência e Linguagem */}
+      {/* Conteúdo com transição suave entre os passos */}
       <div
         className={`relative z-20 w-full flex flex-col items-center transition-opacity duration-500 ${
           mounted ? "opacity-100" : "opacity-0"
         }`}
       >
         <AnimatePresence mode="wait">
-          {currentStep === "experience" ? (
+          {currentStep === "experience" && (
             <motion.div
               key="experience-step"
               initial={{ opacity: 0, y: 16 }}
@@ -115,7 +208,27 @@ export function AreaSelectedScreen({
                 onBack={onBack}
               />
             </motion.div>
-          ) : (
+          )}
+
+          {currentStep === "stack" && (
+            <motion.div
+              key="stack-step"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="w-full flex flex-col items-center"
+            >
+              <StackSelection
+                initialStack={selectedStack}
+                onContinue={handleContinueStack}
+                onBack={() => setCurrentStep("experience")}
+                onSelectStack={(stack) => setSelectedStack(stack)}
+              />
+            </motion.div>
+          )}
+
+          {currentStep === "language" && (
             <motion.div
               key="language-step"
               initial={{ opacity: 0, y: 16 }}
@@ -126,41 +239,87 @@ export function AreaSelectedScreen({
             >
               {/* Título e Subtítulo */}
               <div className="max-w-[750px] w-full text-center flex flex-col items-center mb-4 sm:mb-6">
+                <span className="text-xs uppercase tracking-widest text-[#7c75ff] font-semibold mb-1">
+                  Trilha: {card.label}
+                </span>
                 <h2 className="text-3xl sm:text-[40px] leading-tight sm:leading-[44px] font-bold text-white tracking-tight">
                   Qual tecnologia você quer praticar?
                 </h2>
                 <p className="mt-3.5 max-w-[580px] text-sm sm:text-base leading-5 font-medium text-[#A9A9A9]">
-                  Escolha a linguagem principal para calibrar seus desafios e jornadas.
+                  Escolha a linguagem principal de {card.label} para calibrar seus desafios e sua jornada personalizada.
                 </p>
               </div>
 
-              {/* LanguageCarousel centralizado com fundo transparente sobre o vídeo */}
-              <div className="w-full max-w-[960px] flex items-center justify-center">
+              {/* LanguageCarousel perfeitamente orquestrado com as imagens de referência */}
+              <div className="w-full max-w-[1020px] flex items-center justify-center my-2">
                 <LanguageCarousel
+                  key={`carousel-${card.label}-${selectedStack}-${fullstackPhase}`}
+                  items={curatedLanguages}
+                  stack={isWebTrack ? selectedStack : undefined}
+                  fullstackPhase={fullstackPhase}
                   background="transparent"
-                  className="h-[460px] sm:h-[500px]"
-                  onActiveChange={(item) => setSelectedLanguage(item.label)}
+                  onActiveChange={(item) => handleLanguageActiveChange(item.label)}
                 />
               </div>
 
               {/* Ações Inferiores: Continuar e Voltar */}
-              <div className="flex flex-col items-center w-full max-w-[370px]">
+              <div className="flex flex-col items-center w-full max-w-[370px] mt-6">
                 <button
                   onClick={handleContinueLanguage}
-                  className="w-full h-[51px] rounded-[26px] bg-[#5B4FCF] hover:bg-[#6C60E0] active:scale-[0.98] transition-all flex items-center justify-center gap-3.5 text-white font-semibold text-[15px] cursor-pointer shadow-lg shadow-[#5B4FCF]/30"
+                  disabled={isSubmitting}
+                  className="w-full h-[51px] rounded-[26px] bg-[#5B4FCF] hover:bg-[#6C60E0] active:scale-[0.98] transition-all flex items-center justify-center gap-3.5 text-white font-semibold text-[15px] cursor-pointer shadow-lg shadow-[#5B4FCF]/30 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <span>Continuar</span>
-                  <Image
-                    src="/images/experience/arrow-right.svg"
-                    alt=""
-                    width={16}
-                    height={16}
-                  />
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8H4z"
+                        />
+                      </svg>
+                      Criando sua jornada...
+                    </span>
+                  ) : selectedStack === "fullstack" && fullstackPhase === "frontend" ? (
+                    <>
+                      <span>Continuar</span>
+                      <Image
+                        src="/images/experience/arrow-right.svg"
+                        alt=""
+                        width={16}
+                        height={16}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <span>Iniciar Jornada</span>
+                      <Image
+                        src="/images/experience/arrow-right.svg"
+                        alt=""
+                        width={16}
+                        height={16}
+                      />
+                    </>
+                  )}
                 </button>
 
                 <button
-                  onClick={() => setCurrentStep("experience")}
-                  className="mt-4 flex items-center justify-center gap-1.5 text-[#d1d1d1c8] hover:text-white transition-colors text-[13px] font-medium cursor-pointer py-1 px-3"
+                  onClick={handleBackFromLanguage}
+                  disabled={isSubmitting}
+                  className="mt-4 flex items-center justify-center gap-1.5 text-[#d1d1d1c8] hover:text-white transition-colors text-[13px] font-medium cursor-pointer py-1 px-3 disabled:opacity-50"
                 >
                   <Image
                     src="/images/experience/arrow-left.svg"
@@ -178,3 +337,5 @@ export function AreaSelectedScreen({
     </div>
   );
 }
+
+export default AreaSelectedScreen;

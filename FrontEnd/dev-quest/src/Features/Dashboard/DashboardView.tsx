@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { SideBar } from "./Components/SideBar";
 import { HeaderDashboard } from "./Components/HeaderDashboard";
 import { HomeDashboardView } from "./Views/HomeDashboardView";
@@ -18,10 +17,13 @@ export function DashboardMain() {
         <HeaderDashboard />
 
         {activeView === "home" && (
-          <HomeDashboardView
-            onCreateRoadmap={() => setActiveView("criar-roadmap")}
-          />
+          <Suspense fallback={<div className="p-8 text-[#a3adc7]">Carregando trilhas...</div>}>
+            <HomeDashboardView
+              onCreateRoadmap={() => setActiveView("criar-roadmap")}
+            />
+          </Suspense>
         )}
+
 
         {activeView === "criar-roadmap" && (
           <CriarRoadmapView onBack={() => setActiveView("home")} />
