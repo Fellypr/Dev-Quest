@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PracticeAreaCarousel } from "@/components/PracticeAreaCarousel";
+import { DestinationCard } from "@/components/ui/card-21";
 import { AreaCardItem, DEFAULT_PRACTICE_CARDS } from "../Types/Presentation.types";
 
 interface AnimatedPhraseProps {
@@ -18,7 +18,7 @@ const PHRASES = [
 const DISPLAY_DURATION = 2000; // ms visível
 const FADE_DURATION = 1500;    // ms do fade
 const FLOAT_DELAY = 300;       // ms após ficar visível antes de subir
-const FLOAT_DURATION = 1000;    // ms da animação de subir
+const FLOAT_DURATION = 1000;   // ms da animação de subir
 
 type Phase = "fadeIn" | "visible" | "fadeOut";
 
@@ -31,10 +31,9 @@ export function AnimatedPhrase({
   const [phase, setPhase] = useState<Phase>(skipIntro ? "visible" : "fadeOut");
   const [text, setText] = useState(skipIntro ? PHRASES[PHRASES.length - 1] : PHRASES[0]);
   const [floatedUp, setFloatedUp] = useState(skipIntro);
-  const [carouselVisible, setCarouselVisible] = useState(skipIntro);
+  const [cardsVisible, setCardsVisible] = useState(skipIntro);
 
   const isLastPhrase = index === PHRASES.length - 1;
-
 
   // Inicia o fade-in após pintar o estado invisível
   useEffect(() => {
@@ -70,11 +69,11 @@ export function AnimatedPhrase({
     return () => clearTimeout(timeout);
   }, [phase, isLastPhrase, skipIntro]);
 
-  // Quando o float termina, exibe o carousel
+  // Quando o float termina, exibe os cards
   useEffect(() => {
     if (skipIntro) return;
     if (!floatedUp) return;
-    const t = setTimeout(() => setCarouselVisible(true), FLOAT_DURATION);
+    const t = setTimeout(() => setCardsVisible(true), FLOAT_DURATION);
     return () => clearTimeout(t);
   }, [floatedUp, skipIntro]);
 
@@ -82,7 +81,7 @@ export function AnimatedPhrase({
     if (isZoomingIn) {
       return {
         opacity: 0,
-        transform: "translateY(-14rem) scale(0.96)",
+        transform: "translateY(-15rem) scale(0.96)",
         transition: "opacity 400ms cubic-bezier(0.4, 0, 0.2, 1), transform 400ms cubic-bezier(0.4, 0, 0.2, 1)",
         willChange: "opacity, transform",
       };
@@ -98,7 +97,7 @@ export function AnimatedPhrase({
     if (phase === "visible") {
       return {
         opacity: 1,
-        transform: floatedUp ? "translateY(-12rem)" : "translateY(0px)",
+        transform: floatedUp ? "translateY(-13rem)" : "translateY(0px)",
         transition: floatedUp
           ? `transform ${FLOAT_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1)`
           : "none",
@@ -115,35 +114,47 @@ export function AnimatedPhrase({
   };
 
   return (
-    <div className="w-full h-screen flex items-center justify-center">
+    <div className="w-full h-screen flex items-center justify-center relative overflow-hidden">
       <h1
         style={getStyles()}
-        className="text-5xl font-bold text-center px-7 max-w-6xl"
+        className="text-2xl sm:text-3xl md:text-4xl font-bold text-center px-7 max-w-5xl z-10"
       >
         {text}
       </h1>
 
       <div
-        className="absolute bottom-20"
+        className="absolute top-[88%] -translate-y-1/2 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 md:gap-12 w-full max-w-5xl px-6 z-20"
         style={{
-          opacity: isZoomingIn ? 0 : carouselVisible ? 1 : 0,
+          opacity: isZoomingIn ? 0 : cardsVisible ? 1 : 0,
           transform: isZoomingIn
-            ? "translateY(24px) scale(0.96)"
-            : carouselVisible
-              ? "translateY(0px)"
-              : "translateY(12px)",
+            ? "translateY(calc(-50% + 24px)) scale(0.96)"
+            : cardsVisible
+              ? "translateY(-50%)"
+              : "translateY(calc(-50% + 16px))",
           transition:
             "opacity 450ms cubic-bezier(0.4, 0, 0.2, 1), transform 450ms cubic-bezier(0.4, 0, 0.2, 1)",
-          pointerEvents: carouselVisible && !isZoomingIn ? "auto" : "none",
+          pointerEvents: cardsVisible && !isZoomingIn ? "auto" : "none",
         }}
       >
-        <PracticeAreaCarousel
-          cards={DEFAULT_PRACTICE_CARDS}
-          disabled={isZoomingIn}
-          onSelectCard={(card, _index, element) => {
-            onSelectCard?.(card, element);
-          }}
-        />
+        {DEFAULT_PRACTICE_CARDS.map((card) => (
+          <div
+            key={card.label}
+            className="w-full max-w-[200px] sm:max-w-[320px] md:max-w-[300px] h-[400px] sm:h-[400px] md:h-[380px]"
+          >
+            <DestinationCard
+              imageUrl={card.image || ""}
+              location={card.label}
+              flag={card.flag || "⚡"}
+              stats={card.stats || ""}
+              themeColor={card.themeColor || "245 75% 60%"}
+              onClick={(e) => {
+                if (!isZoomingIn) {
+                  onSelectCard?.(card, e.currentTarget);
+                }
+              }}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );

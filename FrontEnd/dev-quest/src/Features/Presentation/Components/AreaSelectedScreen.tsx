@@ -148,7 +148,7 @@ export function AreaSelectedScreen({
 
   const handleBackFromLanguage = () => {
     if (isFullstack && fullstackPhase === "backend") {
-      // No Fullstack, volta suavemente do backend para o frontend
+      
       setFullstackPhase("frontend");
       return;
     }

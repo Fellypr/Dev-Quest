@@ -1,6 +1,9 @@
 export interface AreaCardItem {
   color: string;
+  themeColor?: string;
   label: string;
+  flag?: string;
+  stats?: string;
   linkUrl?: string;
   image?: string;
   videoUrl?: string;
@@ -68,16 +71,20 @@ export interface UserOnboardingPreferences {
 export const DEFAULT_PRACTICE_CARDS: AreaCardItem[] = [
   {
     color: "#6559ff",
+    themeColor: "248 80% 65%",
     label: "Desenvolvimento Web",
+    flag: "🌐",
+    stats: "Front-End • Back-End • Full-Stack",
     image: "/images/Web_developer_typing_at_desk__web_.jpg",
     videoUrl: "/Video/Software_developer_web.mp4",
   },
   {
     color: "#14dbff",
+    themeColor: "190 95% 50%",
     label: "Desenvolvimento Mobile",
+    flag: "📱",
+    stats: "iOS • Android • React Native",
     image: "/images/Woman_coding_at_desk_mobile2K_.jpg",
     videoUrl: "/Video/Woman_coding_at_desk_mobile1080p.mp4",
   },
-  { color: "#ff3d52", label: "Data Science" },
 ];
-
