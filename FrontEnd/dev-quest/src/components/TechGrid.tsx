@@ -11,12 +11,26 @@ import {
   SiRubyonrails,
   SiElixir,
   SiRust,
+  SiReact,
+  SiNextdotjs,
+  SiTypescript,
+  SiJavascript,
+  SiTailwindcss,
+  SiHtml5,
+  SiCss,
+  SiVuedotjs,
+  SiAngular,
+  SiBootstrap,
+  SiFlutter,
+  SiDart,
+  SiSwift,
+  SiKotlin,
 } from "react-icons/si";
 
 export interface TechItem {
   id: string;
   name: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   paddingClass?: string;
   color?: string;
 }
@@ -94,6 +108,105 @@ export const DEFAULT_BACKEND_TECH_LIST: TechItem[] = [
   },
 ];
 
+export const DEFAULT_FRONTEND_TECH_LIST: TechItem[] = [
+  {
+    id: "react",
+    name: "React",
+    icon: SiReact,
+    paddingClass: "py-4 px-[2px]",
+    color: "#61DAFB",
+  },
+  {
+    id: "nextjs",
+    name: "Next.js",
+    icon: SiNextdotjs,
+    paddingClass: "py-4 px-[2px]",
+    color: "#FFFFFF",
+  },
+  {
+    id: "html5",
+    name: "HTML5",
+    icon: SiHtml5,
+    paddingClass: "py-4 px-[2px]",
+    color: "#E34F26",
+  },
+  {
+    id: "vuejs",
+    name: "Vue.js",
+    icon: SiVuedotjs,
+    paddingClass: "py-4 px-[2px]",
+    color: "#4FC08D",
+  },
+  {
+    id: "angular",
+    name: "Angular",
+    icon: SiAngular,
+    paddingClass: "py-4 px-[2px]",
+    color: "#DD0031",
+  },
+];
+
+export const DEFAULT_MOBILE_TECH_LIST: TechItem[] = [
+  {
+    id: "flutter",
+    name: "Flutter",
+    icon: SiFlutter,
+    paddingClass: "py-4 px-[2px]",
+    color: "#02569B",
+  },
+  {
+    id: "react-native",
+    name: "React Native",
+    icon: SiReact,
+    paddingClass: "py-4 px-[2px]",
+    color: "#61DAFB",
+  },
+  {
+    id: "swift",
+    name: "Swift",
+    icon: SiSwift,
+    paddingClass: "py-4 px-[2px]",
+    color: "#F05138",
+  },
+  {
+    id: "kotlin",
+    name: "Kotlin",
+    icon: SiKotlin,
+    paddingClass: "py-4 px-[2px]",
+    color: "#7F52FF",
+  },
+  {
+    id: "dart",
+    name: "Dart",
+    icon: SiDart,
+    paddingClass: "py-4 px-[2px]",
+    color: "#0175C2",
+  },
+];
+
+export function getTechListByArea(
+  areaLabel: string,
+  stack?: "frontend" | "backend" | "fullstack",
+  fullstackPhase: "frontend" | "backend" = "frontend"
+): TechItem[] {
+  const normalized = areaLabel.toLowerCase();
+
+  if (normalized.includes("mobile")) {
+    return DEFAULT_MOBILE_TECH_LIST;
+  }
+
+  // Desenvolvimento Web
+  if (stack === "frontend" || (stack === "fullstack" && fullstackPhase === "frontend")) {
+    return DEFAULT_FRONTEND_TECH_LIST;
+  }
+
+  if (stack === "backend" || (stack === "fullstack" && fullstackPhase === "backend")) {
+    return DEFAULT_BACKEND_TECH_LIST;
+  }
+
+  return DEFAULT_FRONTEND_TECH_LIST;
+}
+
 export interface TechGridProps {
   items?: TechItem[];
   selectedId?: string | string[];
@@ -109,9 +222,12 @@ export function TechGrid({
   className,
   cardClassName,
 }: TechGridProps) {
-  const isSelected = (id: string) => {
+  const isSelected = (item: TechItem) => {
     if (!selectedId) return false;
-    return Array.isArray(selectedId) ? selectedId.includes(id) : selectedId === id;
+    if (Array.isArray(selectedId)) {
+      return selectedId.includes(item.id) || selectedId.includes(item.name);
+    }
+    return selectedId === item.id || selectedId === item.name;
   };
 
   return (
@@ -123,7 +239,7 @@ export function TechGrid({
     >
       {items.map((item) => {
         const Icon = item.icon;
-        const active = isSelected(item.id);
+        const active = isSelected(item);
 
         return (
           <div
@@ -149,7 +265,10 @@ export function TechGrid({
             )}
           >
             <div className="w-[50px] h-[40px] flex items-center justify-center">
-              <Icon className="w-full h-full text-white object-contain transition-colors" />
+              <Icon
+                className="w-full h-full object-contain transition-colors"
+                style={{ color: active ? item.color || "#ffffff" : "#ffffff" }}
+              />
             </div>
             <span className="text-[13px] font-bold leading-[17px] text-white text-center select-none px-1">
               {item.name}
@@ -162,4 +281,3 @@ export function TechGrid({
 }
 
 export default TechGrid;
-

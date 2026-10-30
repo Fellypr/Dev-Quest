@@ -12,9 +12,10 @@ import { CardStacks } from "./CardStacks";
 import { StackSelection } from "./StackSelection";
 import { DynamicBackground } from "./DynamicBackground";
 import {
-  LanguageCarousel,
-  getLanguagesByArea,
-} from "@/components/LanguageCarousel";
+  TechGrid,
+  getTechListByArea,
+  type TechItem,
+} from "@/components/TechGrid";
 
 interface AreaSelectedScreenProps {
   card: AreaCardItem;
@@ -54,21 +55,29 @@ export function AreaSelectedScreen({
   );
 
   const [frontendLang, setFrontendLang] = useState<string>(
-    initialLanguage || "Bootstrap"
+    initialLanguage || "React"
   );
-  const [backendLang, setBackendLang] = useState<string>("Perl");
+  const [backendLang, setBackendLang] = useState<string>("Node.js");
   const [generalLang, setGeneralLang] = useState<string>(() => {
     if (initialLanguage) return initialLanguage;
-    const langs = getLanguagesByArea(card.label);
-    return langs[0]?.label || "Swift";
+    const items = getTechListByArea(card.label);
+    return items[0]?.name || "Flutter";
   });
 
   const isFullstack = isWebTrack && selectedStack === "fullstack";
 
   // Filtra as tecnologias apropriadas para a etapa atual
-  const curatedLanguages = useMemo(() => {
-    return getLanguagesByArea(card.label, isWebTrack ? selectedStack : undefined, fullstackPhase);
+  const currentTechItems = useMemo(() => {
+    return getTechListByArea(card.label, isWebTrack ? selectedStack : undefined, fullstackPhase);
   }, [card.label, isWebTrack, selectedStack, fullstackPhase]);
+
+  // Tecnologia ativa selecionada
+  const currentActiveTech = useMemo(() => {
+    if (!isWebTrack) return generalLang;
+    if (selectedStack === "frontend") return frontendLang;
+    if (selectedStack === "backend") return backendLang;
+    return fullstackPhase === "frontend" ? frontendLang : backendLang;
+  }, [isWebTrack, selectedStack, fullstackPhase, generalLang, frontendLang, backendLang]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -102,21 +111,21 @@ export function AreaSelectedScreen({
     setCurrentStep("language");
   };
 
-  const handleLanguageActiveChange = (label: string) => {
+  const handleTechSelect = (item: TechItem) => {
     if (!isWebTrack) {
-      setGeneralLang(label);
+      setGeneralLang(item.name);
       return;
     }
     if (selectedStack === "frontend") {
-      setFrontendLang(label);
+      setFrontendLang(item.name);
     } else if (selectedStack === "backend") {
-      setBackendLang(label);
+      setBackendLang(item.name);
     } else {
       // Fullstack
       if (fullstackPhase === "frontend") {
-        setFrontendLang(label);
+        setFrontendLang(item.name);
       } else {
-        setBackendLang(label);
+        setBackendLang(item.name);
       }
     }
   };
@@ -148,7 +157,6 @@ export function AreaSelectedScreen({
 
   const handleBackFromLanguage = () => {
     if (isFullstack && fullstackPhase === "backend") {
-      
       setFullstackPhase("frontend");
       return;
     }
@@ -268,27 +276,33 @@ export function AreaSelectedScreen({
               {/* Título e Subtítulo */}
               <div className="max-w-[750px] w-full text-center flex flex-col items-center mb-4 sm:mb-6">
                 <span className="text-xs uppercase tracking-widest text-[#7c75ff] font-semibold mb-1">
-                  Trilha: {card.label}
+                  {isFullstack
+                    ? `Trilha: ${card.label} (Full-Stack • ${fullstackPhase === "frontend" ? "Front-End" : "Back-End"})`
+                    : `Trilha: ${card.label}`}
                 </span>
                 <h2 className="text-3xl sm:text-[40px] leading-tight sm:leading-[44px] font-bold text-white tracking-tight">
-                  Qual tecnologia você quer praticar?
+                  {isFullstack
+                    ? fullstackPhase === "frontend"
+                      ? "Qual tecnologia Front-End você quer praticar?"
+                      : "Qual tecnologia Back-End você quer praticar?"
+                    : "Qual tecnologia você quer praticar?"}
                 </h2>
                 <p className="mt-3.5 max-w-[580px] text-sm sm:text-base leading-5 font-medium text-[#A9A9A9]">
-                  Escolha a linguagem principal de {card.label} para calibrar seus desafios e sua jornada personalizada.
+                  {isFullstack
+                    ? fullstackPhase === "frontend"
+                      ? "Escolha a tecnologia Front-End principal para calibrar seus desafios."
+                      : "Agora escolha a tecnologia Back-End principal para a sua jornada Full-Stack."
+                    : `Escolha a tecnologia principal de ${card.label} para calibrar seus desafios e sua jornada personalizada.`}
                 </p>
               </div>
 
-              {/* LanguageCarousel perfeitamente orquestrado com as imagens de referência */}
-              <div className="w-full max-w-[1020px] flex items-center justify-center my-2">
-                <LanguageCarousel
-                  key={`carousel-${card.label}-${selectedStack || "default"}-${fullstackPhase}`}
-                  items={curatedLanguages}
-                  areaLabel={card.label}
-                  stack={isWebTrack ? selectedStack : undefined}
-                  fullstackPhase={fullstackPhase}
-                  centerImage={card.image}
-                  background="transparent"
-                  onActiveChange={(item) => handleLanguageActiveChange(item.label)}
+              {/* Grid de Tecnologias */}
+              <div className="w-full max-w-[850px] flex items-center justify-center my-4 min-h-[220px]">
+                <TechGrid
+                  key={`techgrid-${card.label}-${selectedStack || "default"}-${fullstackPhase}`}
+                  items={currentTechItems}
+                  selectedId={currentActiveTech}
+                  onSelect={handleTechSelect}
                 />
               </div>
 
