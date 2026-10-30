@@ -10,7 +10,6 @@ import {
 } from "../Types/Presentation.types";
 import { CardStacks } from "./CardStacks";
 import { StackSelection } from "./StackSelection";
-import { DynamicBackground } from "./DynamicBackground";
 import {
   TechGrid,
   getTechListByArea,
@@ -170,12 +169,11 @@ export function AreaSelectedScreen({
 
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-6 text-white overflow-y-auto overflow-x-hidden select-none bg-[#020308]">
-      {/* Background Dinâmico Temático para Web ou Vídeo Padrão */}
-      {isWebTrack ? (
-        <DynamicBackground activeStack={selectedStack} cardColor={card.color} />
-      ) : videoUrl ? (
+      {/* Background com Vídeo em Loop Infinito (Web e Mobile) */}
+      {videoUrl ? (
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
           <video
+            key={videoUrl}
             autoPlay
             loop
             muted
