@@ -2,9 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace BackEnd.DTOs.v1
 {
-    /// <summary>
-    /// DTO raiz responsável pela desserialização do JSON estruturado gerado pelo modelo de Inteligência Artificial.
-    /// </summary>
+   
     public class AiRoadmapOutputDto
     {
         [JsonPropertyName("title")]
@@ -17,9 +15,6 @@ namespace BackEnd.DTOs.v1
         public List<AiTopicOutputDto> Topics { get; set; } = new();
     }
 
-    /// <summary>
-    /// Representa cada módulo / tópico pedagógico gerado pela IA.
-    /// </summary>
     public class AiTopicOutputDto
     {
         [JsonPropertyName("title")]
@@ -35,9 +30,6 @@ namespace BackEnd.DTOs.v1
         public List<AiLessonOutputDto> Lessons { get; set; } = new();
     }
 
-    /// <summary>
-    /// Representa cada lição individual dentro de um tópico gerado pela IA.
-    /// </summary>
     public class AiLessonOutputDto
     {
         [JsonPropertyName("subject")]

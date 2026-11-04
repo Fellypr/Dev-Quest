@@ -49,7 +49,7 @@ public class RoadmapService : IRoadmapService
             return ApiResponse<CreateRoadmapResponseV1Dto>.Erro("Usuário não encontrado.");
         }
 
-        var experienceLevel = string.IsNullOrWhiteSpace(request.ExperienceLevel) ? "Iniciante" : request.ExperienceLevel.Trim();
+        var experienceLevel = string.IsNullOrWhiteSpace(request.ExperienceLevel) ? "Estagiario" : request.ExperienceLevel.Trim();
         var messages = RoadmapPrompt.CreateMessages(
             request.Specialty.Trim(),
             request.Stack.Trim(),
@@ -68,8 +68,6 @@ public class RoadmapService : IRoadmapService
             return ApiResponse<CreateRoadmapResponseV1Dto>.Erro(aiResponse.Mensagem ?? "Falha ao gerar o roadmap com inteligência artificial.");
         }
 
-        var sanitizedJson = CleanJsonFences(aiResponse.Dados);
-
         AiRoadmapOutputDto? aiRoadmap;
         try
         {
@@ -77,7 +75,7 @@ public class RoadmapService : IRoadmapService
             {
                 PropertyNameCaseInsensitive = true
             };
-            aiRoadmap = JsonSerializer.Deserialize<AiRoadmapOutputDto>(sanitizedJson, options);
+            aiRoadmap = JsonSerializer.Deserialize<AiRoadmapOutputDto>(aiResponse.Dados, options);
         }
         catch (JsonException ex)
         {
@@ -129,6 +127,7 @@ public class RoadmapService : IRoadmapService
         }
     }
 
+    // Recuperar os detalhes completos de uma trilha específica para exibição na tela de estudos do aluno.
     public async Task<ApiResponse<CreateRoadmapResponseV1Dto>> GetRoadmapByIdAsync(
         int roadmapId,
         int userId,
@@ -148,7 +147,8 @@ public class RoadmapService : IRoadmapService
         var responseDto = MapToResponseDto(profile, profile.User?.Level ?? string.Empty);
         return ApiResponse<CreateRoadmapResponseV1Dto>.Ok(responseDto);
     }
-
+    
+    // Listar todas as trilhas já criadas pelo usuário (para exibir no painel/dashboard de "Meus Roadmaps").
     public async Task<ApiResponse<IEnumerable<CreateRoadmapResponseV1Dto>>> GetUserRoadmapsAsync(
         int userId,
         CancellationToken cancellationToken = default)
@@ -163,27 +163,6 @@ public class RoadmapService : IRoadmapService
 
         var dtos = profiles.Select(p => MapToResponseDto(p, p.User?.Level ?? string.Empty)).ToList();
         return ApiResponse<IEnumerable<CreateRoadmapResponseV1Dto>>.Ok(dtos);
-    }
-
-    private static string CleanJsonFences(string content)
-    {
-        var trimmed = content.Trim();
-
-        if (trimmed.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
-        {
-            trimmed = trimmed[7..];
-        }
-        else if (trimmed.StartsWith("```", StringComparison.OrdinalIgnoreCase))
-        {
-            trimmed = trimmed[3..];
-        }
-
-        if (trimmed.EndsWith("```", StringComparison.OrdinalIgnoreCase))
-        {
-            trimmed = trimmed[..^3];
-        }
-
-        return trimmed.Trim();
     }
 
     private static CreateRoadmapResponseV1Dto MapToResponseDto(UserTechProfile profile, string experienceLevel)

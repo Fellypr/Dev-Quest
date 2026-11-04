@@ -103,7 +103,9 @@ public class AiRequestService : IAiRequestService
                 completionResponse?.Usage?.PromptTokens ?? 0,
                 completionResponse?.Usage?.CompletionTokens ?? 0);
 
-            return ApiResponse<string>.Ok(assistantContent, "Resposta gerada com sucesso");
+            var cleanedContent = CleanJsonFences(assistantContent);
+
+            return ApiResponse<string>.Ok(cleanedContent, "Resposta gerada com sucesso");
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -125,5 +127,26 @@ public class AiRequestService : IAiRequestService
             _logger.LogError(ex, "[AI] Erro inesperado ao comunicar com OpenRouter.");
             return ApiResponse<string>.Erro("Ocorreu um erro interno ao processar a requisição de IA.");
         }
+    }
+
+    private static string CleanJsonFences(string content)
+    {
+        var trimmed = content.Trim();
+
+        if (trimmed.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
+        {
+            trimmed = trimmed[7..];
+        }
+        else if (trimmed.StartsWith("```", StringComparison.OrdinalIgnoreCase))
+        {
+            trimmed = trimmed[3..];
+        }
+
+        if (trimmed.EndsWith("```", StringComparison.OrdinalIgnoreCase))
+        {
+            trimmed = trimmed[..^3];
+        }
+
+        return trimmed.Trim();
     }
 }
