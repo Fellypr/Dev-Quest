@@ -41,6 +41,9 @@ BackEnd/
 │   ├── ApiResponse.cs           # Envelope padronizado de resposta (Sucesso, Mensagem, Dados)
 │   └── v1/
 │       ├── UserV1Dto.cs         # DTOs de envio e retorno de usuário (UserV1Dto, UserV1Response)
+│       ├── CreateRoadmapRequestV1Dto.cs   # Entrada do frontend para geração de trilha de estudo
+│       ├── CreateRoadmapResponseV1Dto.cs  # Resposta completa com IDs reais e entidades persistidas
+│       ├── AiRoadmapOutputDto.cs          # Contrato interno de desserialização da resposta JSON da IA
 │       ├── AiCompletionRequestV1Dto.cs  # Payload estruturado para envio de mensagens à IA
 │       └── AiCompletionResponseV1Dto.cs # DTOs de leitura de resposta do provedor de IA
 │
@@ -265,6 +268,60 @@ Todas as respostas da API seguem o envelope padronizado `ApiResponse<T>`:
       "dados": null
     }
     ```
+
+---
+
+## 🧭 Arquitetura de DTOs: Fluxo de Criação de Roadmaps
+
+Para suportar o fluxo inteligente de geração de trilhas de aprendizado personalizadas via IA e persistência no PostgreSQL, a API adota uma separação rigorosa de responsabilidades entre três categorias de DTOs:
+
+```text
+┌─────────────────────────────────┐
+│     Cliente / Frontend          │
+└───────────────┬─────────────────┘
+                │  1. CreateRoadmapRequestV1Dto (Specialty, Stack, Language, Level)
+                ▼
+┌─────────────────────────────────┐
+│  RoadmapService / Controller    │
+└───────────────┬─────────────────┘
+                │  2. Monta mensagens com RoadmapPrompt e invoca OpenRouter
+                ▼
+┌─────────────────────────────────┐
+│    Provedor de IA (OpenRouter)  │
+└───────────────┬─────────────────┘
+                │  3. Retorna JSON sem IDs (schema estrito do prompt)
+                ▼
+┌─────────────────────────────────┐
+│       AiRoadmapOutputDto        │ ◄─── CONTRATO COM O PROMPT DA IA
+└───────────────┬─────────────────┘
+                │  4. Valida e mapeia para Models do EF Core (UserTechProfile, Topics, Lessons)
+                ▼
+┌─────────────────────────────────┐
+│   Banco de Dados (PostgreSQL)   │ ◄─── Gera chaves (`RoadmapId`, `IdTopic`, `IdLesson`)
+└───────────────┬─────────────────┘
+                │  5. Projeta dados salvos com IDs e progresso consolidado
+                ▼
+┌─────────────────────────────────┐
+│   CreateRoadmapResponseV1Dto    │ ◄─── CONTRATO COM O CLIENTE HTTP
+└─────────────────────────────────┘
+```
+
+### 1. `CreateRoadmapRequestV1Dto` (Request DTO - Entrada HTTP)
+- **Origem:** Cliente HTTP (Frontend / Mobile).
+- **Destino:** `RoadmapController` / Camada de entrada.
+- **Propósito:** Captura apenas a intenção e as escolhas pedagógicas do desenvolvedor (`Specialty`, `Stack`, `Language`, `ExperienceLevel`).
+- **Segurança:** Não recebe `IdUser` no corpo da requisição. A identidade do usuário autenticado é extraída de forma segura via Claims do token JWT no servidor.
+
+### 2. `AiRoadmapOutputDto` (Output DTO - Contrato Interno com a IA)
+- **Origem:** Resposta JSON pura retornada pelo modelo de IA (OpenRouter).
+- **Destino:** Camada de serviço de IA / Desserializador JSON.
+- **Propósito:** Representa com fidelidade a árvore de aprendizado sugerida pelo prompt pedagógico (`title`, `description`, `topics`, `lessons`).
+- **Isolamento e Resiliência:** A IA não possui conhecimento sobre banco de dados, chaves primárias, sequências de autoincremento ou chaves estrangeiras. O `AiRoadmapOutputDto` atua como uma barreira protetora para validar a estrutura pedagógica gerada pela IA antes de abrir qualquer transação no banco de dados.
+
+### 3. `CreateRoadmapResponseV1Dto` (Response DTO - Saída HTTP)
+- **Origem:** Camada de serviço / Persistência no EF Core.
+- **Destino:** Cliente HTTP (Frontend / Mobile).
+- **Propósito:** Retorna o roadmap completo e persistido com todas as chaves definitivas do banco de dados (`RoadmapId`, `IdTopic`, `IdLesson`), progresso inicial (`PercentProgress = 0`), status de conclusão (`IsCompleted = false`), e os pontos de experiência (`PointsXpTotal`) para alimentar a interface e o motor de gamificação.
 
 ---
 

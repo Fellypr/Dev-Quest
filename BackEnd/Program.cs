@@ -62,6 +62,7 @@ builder.Services.Configure<OpenRouterSettings>(
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IRoadmapService, RoadmapService>();
 
 builder.Services.AddHttpClient<IAiRequestService, AiRequestService>((serviceProvider, client) =>
 {

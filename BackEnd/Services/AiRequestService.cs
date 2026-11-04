@@ -37,7 +37,10 @@ public class AiRequestService : IAiRequestService
         }
 
         var model = string.IsNullOrWhiteSpace(request.Model) ? _settings.DefaultModel : request.Model;
-        var requestPayload = request with { Model = model };
+        var requestPayload = request with {
+            Model = model,
+            ResponseFormat = new AiResponseFormatV1Dto("json_object")
+        };
 
         var stopwatch = Stopwatch.StartNew();
         _logger.LogInformation("[AI] Requisição iniciada | model={Model}", model);
