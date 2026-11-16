@@ -13,8 +13,6 @@ type HomeDashboardViewProps = {
 export function HomeDashboardView({ onCreateRoadmap }: HomeDashboardViewProps) {
   const searchParams = useSearchParams();
   const { preferences } = useUserPreferences();
-
-  // Prioriza o searchParams da URL ou as preferências persistidas
   const activeArea = searchParams.get("area") || preferences?.area?.label;
   const activeLevel = searchParams.get("level") || preferences?.level;
   const activeLanguage = searchParams.get("lang") || preferences?.language;
