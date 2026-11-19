@@ -8,11 +8,18 @@ namespace BackEnd.Data
         public DbSet<UserTechProfile> UserTechProfiles {get;set;}
         public DbSet<RoadmapTopics> RoadmapTopics {get;set;}
         public DbSet<RoadmapLessons> RoadmapLessons {get;set;}
+        public DbSet<RefreshToken> RefreshTokens {get;set;}
         public AppDbContext (DbContextOptions<AppDbContext> options) : base(options)
         {}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<RefreshToken>()
+                .HasOne(rt => rt.User)
+                .WithMany(u => u.RefreshTokens)
+                .HasForeignKey(rt => rt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<UserTechProfile>()
                 .HasOne(us => us.User)
                 .WithMany(u => u.UserTechProfiles)

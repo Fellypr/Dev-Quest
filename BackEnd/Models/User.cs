@@ -11,5 +11,6 @@ namespace BackEnd.Models
         public string Password { get; set; }
         public string Level { get; set; }
         public ICollection<UserTechProfile> UserTechProfiles { get; set; }
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }

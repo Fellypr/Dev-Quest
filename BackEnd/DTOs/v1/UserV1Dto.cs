@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 
 namespace BackEnd.DTOs.v1
 {
@@ -7,10 +8,17 @@ namespace BackEnd.DTOs.v1
         public string Email { get; set; }
         public string Password { get; set; }
     }
+
     public class UserV1Response
     {
         public string UserName { get; set; }
         public string Email { get; set; }
         public string Token { get; set; }
+
+        [JsonIgnore]
+        public string? RefreshToken { get; set; }
+
+        [JsonIgnore]
+        public DateTime? RefreshTokenExpiresAt { get; set; }
     }
 }

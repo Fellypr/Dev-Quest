@@ -8,9 +8,9 @@ Este documento descreve o esquema de banco de dados relacional (PostgreSQL via E
 
 ```mermaid
 erDiagram
-    AppUsers ||--o{ UserTechProfiles : "possui (1:N)"
-    UserTechProfiles ||--o{ RoadmapTopics : "contém (1:N)"
-    RoadmapTopics ||--o{ RoadmapLessons : "composto por (1:N)"
+    Users ||..o{ UserTechProfile : has
+    UserTechProfile ||..o{ RoadmapTopics : has
+    RoadmapTopics ||..o{ RoadmapLessons : has
 
     AppUsers {
         int Id PK "Identificador único do usuário"
@@ -19,13 +19,12 @@ erDiagram
         string Password "Hash da senha de acesso"
         string Level "Nível geral do usuário (ex: Júnior, Pleno, Sênior)"
     }
-
-    UserTechProfiles {
-        int RoadmapId PK "Identificador único do roadmap / perfil técnico"
-        int IdUser FK "Chave estrangeira referenciando AppUsers(Id)"
-        string Specialty "Área de especialidade (ex: BackEnd, FrontEnd, DevOps)"
-        string Stack "Tecnologia principal / framework (ex: .NET, React, Spring)"
-        string Language "Linguagem de programação (ex: C#, TypeScript, Java)"
+    UserTechProfile {
+        int RoadmapId PK
+        string Specialty
+        string Stack
+        string Language
+        int IdUser FK
     }
 
     RoadmapTopics {
