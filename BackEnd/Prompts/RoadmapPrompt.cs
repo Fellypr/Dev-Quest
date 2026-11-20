@@ -4,16 +4,9 @@ using BackEnd.DTOs.v1;
 
 namespace BackEnd.Prompts;
 
-/// <summary>
-/// Responsável por encapsular e estruturar os prompts de Inteligência Artificial
-/// para geração de Roadmaps pedagógicos e gamificados no Dev-Quest.
-/// </summary>
+
 public static class RoadmapPrompt
 {
-    /// <summary>
-    /// Regras e diretrizes do sistema (Role: "system").
-    /// Define a persona, restrições estruturais, guardrails de segurança e schema JSON estrito.
-    /// </summary>
     public const string SystemRule = """
         Você é o Arquiteto de Software e Mentor Pedagógico Sênior do Dev-Quest, uma plataforma gamificada de aprendizado para desenvolvedores de software.
 
@@ -91,9 +84,7 @@ public static class RoadmapPrompt
         return builder.ToString();
     }
 
-    /// <summary>
-    /// Helper para criar a lista de mensagens no formato exigido pela integração de IA (Role "system" e Role "user").
-    /// </summary>
+ 
     public static IEnumerable<AiMessageV1Dto> CreateMessages(
         string specialty,
         string stack,
@@ -108,9 +99,6 @@ public static class RoadmapPrompt
         };
     }
 
-    /// <summary>
-    /// Sanitiza entradas simples para mitigar quebras de prompt acidentais ou deliberadas.
-    /// </summary>
     private static string SanitizeInput(string? input)
     {
         if (string.IsNullOrWhiteSpace(input))

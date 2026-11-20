@@ -54,18 +54,29 @@ namespace BackEnd.services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public RefreshToken GenerateRefreshToken(int userId)
+        // Aqui a gente transforma o token em SHA-256 (hash) pra nunca salvar o token puro no banco
+        public string HashToken(string token)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+            return Convert.ToHexString(bytes).ToLowerInvariant();
+        }
+
+        // Devolve o token puro pro front e a entidade com o hash pro banco
+        public (string RawToken, RefreshToken Entity) GenerateRefreshToken(int userId)
         {
             var expirationDays = _jwtSettings.RefreshTokenExpirationDays > 0 ? _jwtSettings.RefreshTokenExpirationDays : 7;
             var randomBytes = RandomNumberGenerator.GetBytes(64);
+            var rawToken = Convert.ToBase64String(randomBytes);
 
-            return new RefreshToken
+            var entity = new RefreshToken
             {
                 UserId = userId,
-                Token = Convert.ToBase64String(randomBytes),
+                TokenHash = HashToken(rawToken),
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddDays(expirationDays)
             };
+
+            return (rawToken, entity);
         }
 
         public string GenerateToken(Users user, bool rememberMe = false)

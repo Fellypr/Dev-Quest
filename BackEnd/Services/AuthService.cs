@@ -39,9 +39,9 @@ namespace BackEnd.services
             await _context.SaveChangesAsync();
 
             var accessToken = _jwtService.GenerateAccessToken(user);
-            var refreshToken = _jwtService.GenerateRefreshToken(user.Id);
+            var (rawRefreshToken, refreshTokenEntity) = _jwtService.GenerateRefreshToken(user.Id);
 
-            _context.RefreshTokens.Add(refreshToken);
+            _context.RefreshTokens.Add(refreshTokenEntity);
             await _context.SaveChangesAsync();
 
             var userResponse = new UserV1Response
@@ -49,8 +49,8 @@ namespace BackEnd.services
                 UserName = user.UserName,
                 Email = user.Email,
                 Token = accessToken,
-                RefreshToken = refreshToken.Token,
-                RefreshTokenExpiresAt = refreshToken.ExpiresAt
+                RefreshToken = rawRefreshToken,
+                RefreshTokenExpiresAt = refreshTokenEntity.ExpiresAt
             };
 
             return ApiResponse<UserV1Response>.Ok(userResponse, "Usuário cadastrado com sucesso");
@@ -72,9 +72,9 @@ namespace BackEnd.services
             }
 
             var accessToken = _jwtService.GenerateAccessToken(userExist);
-            var refreshToken = _jwtService.GenerateRefreshToken(userExist.Id);
+            var (rawRefreshToken, refreshTokenEntity) = _jwtService.GenerateRefreshToken(userExist.Id);
 
-            _context.RefreshTokens.Add(refreshToken);
+            _context.RefreshTokens.Add(refreshTokenEntity);
             await _context.SaveChangesAsync();
 
             var userResponse = new UserV1Response
@@ -82,8 +82,8 @@ namespace BackEnd.services
                 UserName = userExist.UserName,
                 Email = userExist.Email,
                 Token = accessToken,
-                RefreshToken = refreshToken.Token,
-                RefreshTokenExpiresAt = refreshToken.ExpiresAt
+                RefreshToken = rawRefreshToken,
+                RefreshTokenExpiresAt = refreshTokenEntity.ExpiresAt
             };
 
             return ApiResponse<UserV1Response>.Ok(userResponse, $"Bem vindo de volta {userResponse.UserName}");
@@ -96,22 +96,25 @@ namespace BackEnd.services
                 return ApiResponse<UserV1Response>.Erro("Token de renovação não fornecido.");
             }
 
+            // O front manda o token puro, entao a gente calcula o hash dele pra achar a linha certa no banco
+            var tokenHash = _jwtService.HashToken(refreshToken);
+
             var tokenEntity = await _context.RefreshTokens
                 .Include(rt => rt.User)
-                .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+                .FirstOrDefaultAsync(rt => rt.TokenHash == tokenHash);
 
             if (tokenEntity == null || !tokenEntity.IsActive)
             {
                 return ApiResponse<UserV1Response>.Erro("Token de renovação inválido ou expirado.");
             }
 
-            // Rotação de Refresh Token: revoga o atual e cria um novo
+            // Invalida o token antigo pra ninguem reutilizar (rotacao de token)
             tokenEntity.RevokedAt = DateTime.UtcNow;
 
-            var newRefreshToken = _jwtService.GenerateRefreshToken(tokenEntity.UserId);
+            var (newRawRefreshToken, newRefreshTokenEntity) = _jwtService.GenerateRefreshToken(tokenEntity.UserId);
             var newAccessToken = _jwtService.GenerateAccessToken(tokenEntity.User);
 
-            _context.RefreshTokens.Add(newRefreshToken);
+            _context.RefreshTokens.Add(newRefreshTokenEntity);
             await _context.SaveChangesAsync();
 
             var userResponse = new UserV1Response
@@ -119,8 +122,8 @@ namespace BackEnd.services
                 UserName = tokenEntity.User.UserName,
                 Email = tokenEntity.User.Email,
                 Token = newAccessToken,
-                RefreshToken = newRefreshToken.Token,
-                RefreshTokenExpiresAt = newRefreshToken.ExpiresAt
+                RefreshToken = newRawRefreshToken,
+                RefreshTokenExpiresAt = newRefreshTokenEntity.ExpiresAt
             };
 
             return ApiResponse<UserV1Response>.Ok(userResponse, "Token renovado com sucesso");
@@ -133,8 +136,10 @@ namespace BackEnd.services
                 return ApiResponse<bool>.Ok(true, "Nenhuma sessão ativa encontrada.");
             }
 
+            var tokenHash = _jwtService.HashToken(refreshToken);
+
             var tokenEntity = await _context.RefreshTokens
-                .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+                .FirstOrDefaultAsync(rt => rt.TokenHash == tokenHash);
 
             if (tokenEntity != null && tokenEntity.IsActive)
             {

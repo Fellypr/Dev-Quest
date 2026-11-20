@@ -1,6 +1,6 @@
-# Arquitetura de Dados - Dev-Quest
+# Arquitetura de Dados e Esquema Relacional — Dev-Quest
 
-Este documento descreve o esquema de banco de dados relacional (PostgreSQL via Entity Framework Core), o diagrama de entidades e relacionamentos (ERD) e o fluxo detalhado das tabelas que compõem o ecossistema do **Dev-Quest**.
+Este documento descreve a modelagem de dados relacional (PostgreSQL via Entity Framework Core 10), o Diagrama Entidade-Relacionamento (ERD), o detalhamento das tabelas e o fluxo de integridade do ecossistema **Dev-Quest BackEnd**.
 
 ---
 
@@ -8,39 +8,50 @@ Este documento descreve o esquema de banco de dados relacional (PostgreSQL via E
 
 ```mermaid
 erDiagram
-    Users ||..o{ UserTechProfile : has
-    UserTechProfile ||..o{ RoadmapTopics : has
-    RoadmapTopics ||..o{ RoadmapLessons : has
+    AppUsers ||--o{ RefreshTokens : "possui (1:N)"
+    AppUsers ||--o{ UserTechProfiles : "possui (1:N)"
+    UserTechProfiles ||--o{ RoadmapTopics : "contém (1:N)"
+    RoadmapTopics ||--o{ RoadmapLessons : "contém (1:N)"
 
     AppUsers {
         int Id PK "Identificador único do usuário"
-        string UserName "Nome de usuário/apelido"
-        string Email "E-mail para autenticação"
-        string Password "Hash da senha de acesso"
-        string Level "Nível geral do usuário (ex: Júnior, Pleno, Sênior)"
+        string UserName "Nome de usuário / apelido único"
+        string Email "E-mail de autenticação"
+        string Password "Hash de senha seguro gerado com BCrypt"
+        string Level "Senioridade geral do desenvolvedor"
     }
-    UserTechProfile {
-        int RoadmapId PK
-        string Specialty
-        string Stack
-        string Language
-        int IdUser FK
+
+    RefreshTokens {
+        int Id PK "Identificador único do registro de refresh token"
+        int UserId FK "Chave estrangeira referenciando AppUsers(Id)"
+        string TokenHash "Hash SHA-256 do token criptográfico em hexadecimal"
+        timestamp ExpiresAt "Data e hora de expiração da sessão"
+        timestamp CreatedAt "Data e hora de emissão do token (UTC)"
+        timestamp RevokedAt "Data e hora de revogação/rotação (nulo se ativo)"
+    }
+
+    UserTechProfiles {
+        int RoadmapId PK "Identificador único da trilha / roadmap"
+        int IdUser FK "Chave estrangeira referenciando AppUsers(Id)"
+        string Specialty "Especialidade técnica (ex: Backend, Frontend, Mobile)"
+        string Stack "Stack tecnológica (ex: .NET, React, Node.js)"
+        string Language "Linguagem principal de programação (ex: C#, TypeScript)"
     }
 
     RoadmapTopics {
         int IdTopic PK "Identificador único do módulo / tópico de estudo"
         int RoadmapId FK "Chave estrangeira referenciando UserTechProfiles(RoadmapId)"
         string Title "Título descritivo do tópico"
-        string Challenge "Desafio prático a ser realizado para consolidar o módulo"
-        int PointsXpTotal "Pontos de experiência (XP) atribuídos ao concluir o tópico"
-        int PercentProgress "Percentual de progresso do tópico (0 a 100)"
-        bool IsCompleted "Indicador de conclusão da tarefa/desafio"
+        string Challenge "Desafio prático simulando cenário real de mercado"
+        int PointsXpTotal "Pontuação de experiência (XP) atribuída ao módulo"
+        int PercentProgress "Percentual de progresso concluído (0 a 100)"
+        bool IsCompleted "Indicador booleano de conclusão do desafio"
     }
 
     RoadmapLessons {
-        int IdLesson PK "Identificador único da lição"
+        int IdLesson PK "Identificador único da lição / aula"
         int RoadmapTopicId FK "Chave estrangeira referenciando RoadmapTopics(IdTopic)"
-        string Subject "Assunto / título da lição"
+        string Subject "Assunto e título pedagógico da lição"
         string ExplanationOfTheSubject "Explicação teórica e orientações didáticas da lição"
     }
 ```
@@ -49,68 +60,85 @@ erDiagram
 
 ## 2. Visão Geral das Entidades e Tabelas
 
-O banco de dados é modelado com quatro tabelas principais interligadas de forma hierárquica e progressiva:
+As entidades C# estão localizadas na pasta `Models/` e são mapeadas para o banco PostgreSQL através de `AppDbContext.cs`:
 
-| Entidade C# | Tabela no Banco | Descrição |
+| Entidade C# | Tabela Física | Finalidade e Descrição |
 | :--- | :--- | :--- |
-| `Users` | `AppUsers` | Armazena as credenciais de acesso, perfil e senioridade de cada usuário cadastrado. |
-| `UserTechProfile` | `UserTechProfiles` | Representa a trilha de aprendizado (Roadmap) associada ao foco técnico do usuário (especialidade, stack e linguagem). |
-| `RoadmapTopics` | `RoadmapTopics` | Representa os módulos e desafios práticos que compõem o Roadmap, com pontuação gamificada de XP e acompanhamento de progresso. |
-| `RoadmapLessons` | `RoadmapLessons` | Contém o conteúdo didático e as lições detalhadas necessárias para que o usuário estude e resolva o desafio do tópico. |
+| `Users` | `AppUsers` | Armazena as contas dos desenvolvedores (credenciais, e-mail e senioridade). Nó raiz de relacionamento. |
+| `RefreshToken` | `RefreshTokens` | Persiste o estado das sessões ativas e histórico de rotação de tokens. **Armazena apenas o hash SHA-256 (`TokenHash`)** do token emitido. |
+| `UserTechProfile` | `UserTechProfiles` | Representa uma trilha de aprendizagem personalizada associada ao foco técnico (especialidade, stack, linguagem) do usuário. |
+| `RoadmapTopics` | `RoadmapTopics` | Representa os módulos progressivos gerados pela IA, contendo desafio prático, controle de progresso e gamificação com pontos de XP. |
+| `RoadmapLessons` | `RoadmapLessons` | Contém as lições didáticas detalhadas subordinadas a cada tópico, servindo de base teórica para resolver o desafio. |
 
 ---
 
-## 3. Fluxo e Ciclo de Vida dos Dados
+## 3. Segurança e Ciclo de Vida do Refresh Token
 
-O fluxo operacional do sistema acontece em 5 etapas principais:
+A tabela `RefreshTokens` segue as diretrizes da **OWASP para gerenciamento de sessões e prevenção de vazamento de credenciais**:
 
+1. **Geração Segura:** A aplicação gera 64 bytes criptograficamente aleatórios via `RandomNumberGenerator` e codifica em Base64.
+2. **Armazenamento com Hash (SHA-256):** O token em texto puro **nunca** é persistido no banco de dados. Apenas o hash hexadecimal SHA-256 é armazenado na coluna `TokenHash`.
+3. **Tráfego Seguro via Cookie:** O token puro trafega exclusivamente via Cookie `HttpOnly; Secure; SameSite=Lax` com escopo restrito a `/api/v1/auth`.
+4. **Validação na Renovação (`POST /api/v1/auth/refresh`):** Ao receber o cookie, a aplicação calcula o hash SHA-256 da string recebida e busca a linha correspondente no banco.
+5. **Rotação Automática:** A sessão antiga é imediatamente invalidada marcando `RevokedAt = DateTime.UtcNow`, e um novo par de tokens é emitido.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Ativo : Token emitido no Login / Register
+    Ativo --> Revogado : silent refresh executado (RevokedAt preenchido)
+    Ativo --> Expirado : DateTime.UtcNow >= ExpiresAt
+    Ativo --> Revogado : Logout acionado pelo usuário
+    Revogado --> [*]
+    Expirado --> [*]
 ```
-[ Usuário se Cadastra ]
-         │
-         ▼
-[ Criação do Perfil Técnico ] ──► (Especialidade, Stack, Linguagem)
-         │
-         ▼
-[ Geração de Roadmap via IA ] ──► (Criação de Tópicos e Lições)
-         │
-         ▼
-[ Estudo das Lições & Desafio ] ──► (Consumo do conteúdo e execução prática)
-         │
-         ▼
-[ Conclusão & Gamificação ] ──► (IsCompleted = true, XP atribuído, Progresso 100%)
-```
-
-### Passo a Passo do Fluxo:
-
-1. **Autenticação e Registro do Desenvolvedor (`AppUsers`)**:
-   - O usuário cria sua conta fornecendo nome, e-mail, senha e nível de senioridade (`Level`).
-   - Esta tabela atua como o nó raiz para todas as atividades do usuário na plataforma.
-
-2. **Definição de Trilha e Foco Técnico (`UserTechProfiles`)**:
-   - Um usuário pode iniciar uma ou mais trilhas de estudos indicando sua especialidade (`Specialty`), stack (`Stack`) e linguagem (`Language`).
-   - Cada perfil gera um identificador único de roadmap (`RoadmapId`), associado ao `IdUser`.
-
-3. **Geração e Planejamento da Jornada de Estudos (`RoadmapTopics`)**:
-   - Para cada perfil/roadmap cadastrado, o sistema (via prompts e inteligência artificial) gera tópicos estruturados pedagogicamente do nível fundamental ao avançado.
-   - Cada tópico estabelece uma meta de aprendizado (`Title`), um desafio de código ou projeto simulando o mercado de trabalho (`Challenge`) e uma recompensa gamificada em XP (`PointsXpTotal`).
-   - Inicialmente, `PercentProgress` começa em `0` e `IsCompleted` como `false`.
-
-4. **Detalhamento do Conteúdo de Aprendizado (`RoadmapLessons`)**:
-   - Cada tópico se desdobra em múltiplas lições (`RoadmapLessons`) associadas via `RoadmapTopicId`.
-   - Cada lição fornece o assunto (`Subject`) e instruções práticas com explicação teórica (`ExplanationOfTheSubject`), servindo de guia de estudo para capacitar o desenvolvedor a resolver o desafio do tópico.
-
-5. **Gamificação e Evolução de Progresso**:
-   - Conforme o desenvolvedor estuda as lições e completa o desafio (`Challenge`), o `PercentProgress` do tópico avança até atingir a conclusão (`IsCompleted = true`), liberando os pontos de experiência (`PointsXpTotal`) para o progresso do usuário.
 
 ---
 
-## 4. Regras de Integridade Relacional e Exclusão em Cascata (Cascade Delete)
+## 4. Ciclo de Vida e Fluxo de Dados do Roadmap
+
+```
+[ Usuário Autenticado ]
+          │
+          ▼
+[ POST /api/v1/roadmaps ] ──► (Specialty, Stack, Language, Level)
+          │
+          ▼
+[ Geração via IA (OpenRouter) ] ──► Prompt estrito retorna JSON pedagógico
+          │
+          ▼
+[ Transação Atômica no Banco (EF Core) ]
+   ├── 1. Insere UserTechProfiles (gera RoadmapId)
+   ├── 2. Insere RoadmapTopics (gera IdTopic, vincula RoadmapId, XP inicial)
+   └── 3. Insere RoadmapLessons (gera IdLesson, vincula RoadmapTopicId)
+          │
+          ▼
+[ Estudo das Lições e Execução do Desafio ]
+          │
+          ▼
+[ Atualização de Progresso ] ──► (PercentProgress: 0 a 100%, IsCompleted = true, XP atribuído)
+```
+
+---
+
+## 5. Regras de Integridade Relacional e Exclusão em Cascata (Cascade Delete)
 
 Conforme configurado em `AppDbContext.cs`, todas as relações possuem exclusão em cascata (`DeleteBehavior.Cascade`):
 
-- **Ao remover um Usuário (`AppUsers`)**:
-  - Todos os perfis técnicos (`UserTechProfiles`), tópicos (`RoadmapTopics`) e lições (`RoadmapLessons`) vinculados são automaticamente excluídos, garantindo que não restem registros órfãos.
-- **Ao remover um Perfil Técnico / Roadmap (`UserTechProfiles`)**:
-  - Todos os tópicos (`RoadmapTopics`) e suas respectivas lições (`RoadmapLessons`) pertencentes àquele roadmap são removidos em cascata.
-- **Ao remover um Tópico (`RoadmapTopics`)**:
-  - Todas as lições (`RoadmapLessons`) filhas daquele tópico são excluídas.
+* **Ao excluir um Usuário (`AppUsers`):**
+  * Todos os `RefreshTokens` daquele usuário são removidos imediatamente.
+  * Todas as trilhas (`UserTechProfiles`), tópicos (`RoadmapTopics`) e lições (`RoadmapLessons`) associadas são excluídas em cascata, eliminando registros órfãos.
+* **Ao excluir um Perfil Técnico / Roadmap (`UserTechProfiles`):**
+  * Todos os tópicos (`RoadmapTopics`) e lições (`RoadmapLessons`) filhas são excluídos.
+* **Ao excluir um Tópico (`RoadmapTopics`):**
+  * Todas as lições (`RoadmapLessons`) dependentes daquele tópico são excluídas.
+
+---
+
+## 6. Histórico de Migrações do Entity Framework Core
+
+As modificações de estrutura do banco de dados são versionadas na pasta `Migrations/`:
+
+| Data / Identificador | Migração | Descrição |
+| :--- | :--- | :--- |
+| `20261023125354` | `AddRefreshTokenTable` | Criação inicial da tabela `RefreshTokens` vinculada a `AppUsers`. |
+| `20261120182825` | `RenameTokenToTokenHashInRefreshToken` | Renomeação da coluna `Token` para `TokenHash` para armazenar hash SHA-256. |

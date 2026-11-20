@@ -9,7 +9,7 @@ namespace BackEnd.Models
         public int Id { get; set; }
 
         [Required]
-        public string Token { get; set; } = string.Empty;
+        public string TokenHash { get; set; } = string.Empty;
 
         [Required]
         public DateTime ExpiresAt { get; set; }

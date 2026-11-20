@@ -1,6 +1,18 @@
 # Dev-Quest — BackEnd API
 
-API REST desenvolvida em **.NET 10** para a plataforma **Dev-Quest**, oferecendo serviços de autenticação robusta (Access Token em memória RAM + Refresh Token persistido em Cookie HttpOnly com rotação OWASP), persistência de dados com PostgreSQL via Entity Framework Core, versionamento de rotas e integração com modelos de Inteligência Artificial (OpenRouter / APIs compatíveis com chat completions).
+API REST de alta performance desenvolvida em **.NET 10 (C# 13/14)** para a plataforma de aprendizagem técnica gamificada **Dev-Quest**. 
+
+O sistema oferece autenticação corporativa híbrida (Access Token em RAM + Refresh Token SHA-256 em Cookie HttpOnly com rotação OWASP), persistência relacional com PostgreSQL via Entity Framework Core, versionamento semântico de rotas e geração inteligente de trilhas de aprendizado (Roadmaps) com modelos de IA via OpenRouter.
+
+---
+
+## 📚 Documentação do Projeto
+
+Para facilitar a navegação e a manutenção contínua, a documentação está organizada de forma modular:
+
+* 📡 **[Especificação Completa da API (API.md)](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/docs/API.md)**: Todos os endpoints (Auth, IA, Roadmaps), contratos JSON de requisição/resposta, parâmetros e códigos HTTP.
+* 🏗️ **[Arquitetura e Engenharia de Software (ARCHITECTURE.md)](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/docs/ARCHITECTURE.md)**: Camadas, fluxo de segurança de tokens (XSS/CSRF), pipeline pedagógico de IA e DTOs.
+* 🗄️ **[Arquitetura de Dados e Esquema Relacional (schema.md)](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/schema.md)**: Diagrama ERD Mermaid, tabelas (`AppUsers`, `RefreshTokens`, `UserTechProfiles`, `RoadmapTopics`, `RoadmapLessons`) e integridade relacional.
 
 ---
 
@@ -10,68 +22,82 @@ API REST desenvolvida em **.NET 10** para a plataforma **Dev-Quest**, oferecendo
 - **Linguagem**: C# 13 / 14
 - **Banco de Dados**: [PostgreSQL](https://www.postgresql.org/)
 - **ORM**: [Entity Framework Core 10](https://learn.microsoft.com/ef/core/) com [Npgsql.EntityFrameworkCore.PostgreSQL](https://www.npgsql.org/efcore/)
-- **Autenticação & Criptografia**:
-  - [BCrypt.Net-Next](https://github.com/BcryptNet/bcrypt.net): Hash seguro de senhas com salt automático.
-  - [Microsoft.AspNetCore.Authentication.JwtBearer](https://learn.microsoft.com/aspnet/core/security/authentication/jwt-authn): Middleware e validação oficial de tokens JWT no pipeline do ASP.NET Core.
-  - [System.IdentityModel.Tokens.Jwt](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet): Emissão de tokens JWT assinados com `HmacSha256`, claims e identificador `Jti`.
-  - **Estratégia Híbrida de Tokens**: Access Token de curta duração (15 min) para estado volátil na RAM do Front-End + Refresh Token criptográfico de longa duração (7 dias) armazenado em Cookie `HttpOnly` com Rotação Automática de Tokens.
-- **Versionamento de API**: [Asp.Versioning.Mvc](https://github.com/dotnet/aspnet-api-versioning) (suporte a versionamento semântico nas rotas `/api/v{version}/...`).
+- **Autenticação & Segurança**:
+  - [BCrypt.Net-Next](https://github.com/BcryptNet/bcrypt.net): Hash de senhas com salt automático.
+  - [Microsoft.AspNetCore.Authentication.JwtBearer](https://learn.microsoft.com/aspnet/core/security/authentication/jwt-authn): Validação nativa de JWT.
+  - [System.IdentityModel.Tokens.Jwt](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet): Assinatura de tokens JWT (`HmacSha256`).
+  - **Estratégia Híbrida OWASP**: Access Token volátil (15 min) na RAM do Front-End + Refresh Token criptográfico (7 dias) em Cookie `HttpOnly` com armazenamento em **Hash SHA-256** no banco de dados.
+- **Versionamento de API**: [Asp.Versioning.Mvc](https://github.com/dotnet/aspnet-api-versioning) (rotas `/api/v{version}/...`).
 - **Documentação Interativa**: [Swagger / OpenAPI](https://swagger.io/) (`Swashbuckle.AspNetCore` e `Microsoft.AspNetCore.OpenApi`).
-- **Resiliência e Comunicação HTTP**: `HttpClient` tipado gerenciado pelo `IHttpClientFactory` para chamadas resilientes ao serviço de IA.
+- **Comunicação Resiliente**: `HttpClientFactory` tipado para integração com provedores de IA (OpenRouter).
 
 ---
 
 ## 📁 Estrutura do Projeto
 
-O projeto adota uma arquitetura em camadas clara e desacoplada:
-
 ```text
 BackEnd/
 ├── Configuration/               # Classes de configuração tipadas (Options Pattern)
-│   ├── JwtSettings.cs           # Configurações de expiração do Access Token e Refresh Token
+│   ├── JwtSettings.cs           # Parâmetros de JWT e tempos de expiração
 │   └── OpenRouterSettings.cs    # Configurações do provedor de IA (URL, Modelo, Chave, Timeout)
 │
 ├── Controller/                  # Camada de apresentação e roteamento HTTP
 │   └── v1/
-│       ├── AuthV1Controller.cs  # Endpoints: register, login, refresh (silencioso) e logout
-│       └── AiV1Controller.cs    # Endpoint de comunicação com a Inteligência Artificial
+│       ├── AuthV1Controller.cs     # Endpoints: register, login, refresh e logout
+│       ├── AiV1Controller.cs       # Endpoint de chat completion com a IA
+│       └── RoadmapV1Controller.cs  # Endpoints: geração, busca e listagem de roadmaps
 │
-├── Data/                        # Acesso a dados e persistência
-│   └── AppDbContext.cs          # Contexto do banco de dados (Entity Framework Core)
+├── Data/                        # Persistência e contexto do EF Core
+│   └── AppDbContext.cs          # Mapeamento das tabelas e regras de DeleteBehavior.Cascade
 │
 ├── DTOs/                        # Data Transfer Objects (Contratos de entrada/saída)
-│   ├── ApiResponse.cs           # Envelope padronizado de resposta (Sucesso, Mensagem, Dados)
 │   └── v1/
-│       ├── UserV1Dto.cs         # DTOs de envio e retorno de usuário (UserV1Dto, UserV1Response)
+│       ├── ApiResponse.cs               # Envelope padronizado de resposta (Sucesso, Mensagem, Dados)
+│       ├── UserV1Dto.cs                 # DTOs de envio e retorno de autenticação
 │       ├── AiCompletionRequestV1Dto.cs  # Payload estruturado para envio de mensagens à IA
-│       └── AiCompletionResponseV1Dto.cs # DTOs de leitura de resposta do provedor de IA
+│       ├── AiCompletionResponseV1Dto.cs # DTO de leitura de resposta do provedor de IA
+│       ├── AiRoadmapOutputDto.cs        # Contrato de saída esperado do JSON da IA
+│       ├── CreateRoadmapRequestV1Dto.cs # DTO de entrada para criação de roadmap
+│       └── CreateRoadmapResponseV1Dto.cs# DTO completo com IDs persistidos e progresso
 │
 ├── Interfaces/                  # Contratos de abstração para injeção de dependência
-│   ├── IAuthService.cs          # Métodos de registro, login, refresh e logout/revogação
-│   ├── IJwtService.cs           # Emissão de AccessToken (JWT) e RefreshToken criptográfico
-│   └── IAiRequestService.cs     # Interface de comunicação com o provedor de IA
+│   ├── IAuthService.cs          # Contrato de registro, login, refresh e logout
+│   ├── IJwtService.cs           # Emissão de AccessToken, RefreshToken e Hash SHA-256
+│   ├── IAiRequestService.cs     # Comunicação com a API de IA
+│   └── IRoadmapService.cs       # Orquestração da geração e persistência de roadmaps
 │
 ├── Middlewares/                 # Interceptadores do pipeline HTTP
 │   └── ExceptionMiddleware.cs   # Captura global de exceções e padronização de erro 500
 │
-├── Migrations/                  # Histórico de migrações do banco de dados (EF Core)
-│   ├── 20261023125354_AddRefreshTokenTable.cs # Tabela RefreshTokens vinculada a AppUsers
+├── Migrations/                  # Histórico de migrações do banco (EF Core)
+│   ├── 20261023125354_AddRefreshTokenTable.cs
+│   ├── 20261120182825_RenameTokenToTokenHashInRefreshToken.cs
 │   └── AppDbContextModelSnapshot.cs
 │
-├── Models/                      # Entidades de domínio mapeadas para o banco
-│   ├── User.cs                  # Entidade Users (Id, UserName, Email, Password, Level)
-│   ├── RefreshToken.cs          # Entidade RefreshTokens (Token, ExpiresAt, RevokedAt, UserId)
-│   ├── UserTechProfile.cs       # Perfil técnico e trilhas de aprendizagem
-│   ├── RoadmapTopics.cs         # Tópicos do roadmap
-│   └── RoadmapLessons.cs        # Lições e assuntos de cada tópico
+├── Models/                      # Entidades de domínio mapeadas para o PostgreSQL
+│   ├── User.cs                  # Tabela AppUsers
+│   ├── RefreshToken.cs          # Tabela RefreshTokens (armazena TokenHash)
+│   ├── UserTechProfile.cs       # Tabela UserTechProfiles (trilhas do usuário)
+│   ├── RoadmapTopics.cs         # Tabela RoadmapTopics (módulos e desafios gamificados)
+│   └── RoadmapLessons.cs        # Tabela RoadmapLessons (conteúdo teórico e didático)
 │
-├── Services/                    # Camada de lógica de negócios e integrações externas
-│   ├── AuthService.cs           # Validação, hash de senha, emissão e rotação de Refresh Token
-│   ├── JwtService.cs            # Assinatura de JWT e geração de tokens aleatórios seguros
-│   └── AiRequestService.cs      # Cliente HTTP seguro com logs, métricas e tratamento de IA
+├── Prompts/                     # Engenharia de prompts e guardrails pedagógicos
+│   └── RoadmapPrompt.cs         # System prompts, guardrails anti-injection e construtor de mensagens
 │
+├── Services/                    # Regras de negócio e integrações externas
+│   ├── AuthService.cs           # Lógica de login, hash de senha e rotação de sessão
+│   ├── JwtService.cs            # Assinatura de JWT e geração de hash SHA-256
+│   ├── AiRequestService.cs      # Cliente HTTP seguro com logs e tratamento de IA
+│   └── RoadmapService.cs        # Validação, chamada de IA e transação atômica no banco
+│
+├── docs/                        # Documentação técnica complementar
+│   ├── API.md                   # Catálogo completo de endpoints e exemplos JSON
+│   └── ARCHITECTURE.md          # Detalhes de segurança, tokens e fluxos de IA
+│
+├── schema.md                    # Modelagem relacional e Diagrama ERD Mermaid
 ├── BackEnd.http                 # Arquivo para testes de requisições diretas via VS Code / IDE
 ├── BackEnd.csproj               # Manifesto do projeto e dependências NuGet
+├── Dockerfile                   # Build multi-stage otimizado com usuário não-root
 └── Program.cs                   # Ponto de entrada, injeção de dependências, CORS e autenticação
 ```
 
@@ -120,7 +146,7 @@ As configurações da aplicação residem nos arquivos `appsettings.json` ou `ap
 - [PostgreSQL](https://www.postgresql.org/download/) em execução
 - Ferramenta de linha de comando do Entity Framework Core (`dotnet tool install --global dotnet-ef`)
 
-### Passo a Passo
+### Passo a Passo Local
 
 1. **Clone o repositório:**
    ```bash
@@ -145,314 +171,22 @@ As configurações da aplicação residem nos arquivos `appsettings.json` ou `ap
    Abra no seu navegador:
    ```text
    http://localhost:5263/swagger
-   # ou https://localhost:7196/swagger (conforme a porta configurada no launchSettings.json)
+   # ou https://localhost:7196/swagger
    ```
 
 ---
 
-## 📡 Endpoints da API (Versão 1.0)
+## 🐳 Executando com Docker (Multi-Stage Build)
 
-Todas as respostas da API seguem o envelope padronizado `ApiResponse<T>`:
+A aplicação conta com um [Dockerfile](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/Dockerfile) otimizado com **Multi-Stage Build**:
+* **Estágio `builder` (`dotnet/sdk:10.0`)**: Compila os binários em modo Release com cache de camadas.
+* **Estágio `runtime` (`dotnet/aspnet:10.0`)**: Executa a aplicação com o usuário sem privilégios de root (`USER app`).
 
-```json
-{
-  "sucesso": true,
-  "mensagem": "Descrição do resultado",
-  "dados": { ... }
-}
-```
-
----
-
-### 1. Autenticação (`/api/v1/auth`)
-
-#### 📌 Cadastro de Usuário
-- **Rota:** `POST /api/v1/auth/register`
-- **Descrição:** Registra um novo usuário no banco com senha criptografada via BCrypt. Emite o par de tokens: o **Access Token** é retornado no corpo da resposta para ser mantido na memória RAM do Front-End, e o **Refresh Token** é enviado através de um Cookie seguro `HttpOnly`.
-- **Corpo da Requisição (`UserV1Dto`):**
-  ```json
-  {
-    "userName": "joaosilva",
-    "email": "joao@exemplo.com",
-    "password": "SenhaSegura123!"
-  }
-  ```
-- **Cabeçalhos de Resposta:**
-  ```http
-  Set-Cookie: refreshToken=dGhpcy1pcy1hLXNlY3VyZS1yZWZyZXNoLXRva2Vu...; Path=/api/v1/auth; HttpOnly; SameSite=Lax
-  ```
-- **Respostas:**
-  - `201 Created` — Cadastro realizado com sucesso:
-    ```json
-    {
-      "sucesso": true,
-      "mensagem": "Usuário cadastrado com sucesso",
-      "dados": {
-        "userName": "joaosilva",
-        "email": "joao@exemplo.com",
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-      }
-    }
-    ```
-  - `401 Unauthorized` — E-mail já cadastrado:
-    ```json
-    {
-      "sucesso": false,
-      "mensagem": "Essa conta já existe.",
-      "dados": null
-    }
-    ```
-
----
-
-#### 📌 Login de Usuário
-- **Rota:** `POST /api/v1/auth/login`
-- **Descrição:** Autentica o usuário validando login por e-mail ou username em conjunto com a senha criptografada. Emite um novo par de tokens (Access Token no body e Refresh Token via Cookie `HttpOnly`).
-- **Corpo da Requisição (`UserV1Dto`):**
-  ```json
-  {
-    "email": "joao@exemplo.com",
-    "password": "SenhaSegura123!"
-  }
-  ```
-  *(Ou informando `"userName"` no lugar de `"email"`)*
-- **Cabeçalhos de Resposta:**
-  ```http
-  Set-Cookie: refreshToken=dGhpcy1pcy1hLXNlY3VyZS1yZWZyZXNoLXRva2Vu...; Path=/api/v1/auth; HttpOnly; SameSite=Lax
-  ```
-- **Respostas:**
-  - `200 OK` — Autenticação bem-sucedida:
-    ```json
-    {
-      "sucesso": true,
-      "mensagem": "Bem vindo de volta joaosilva",
-      "dados": {
-        "userName": "joaosilva",
-        "email": "joao@exemplo.com",
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-      }
-    }
-    ```
-  - `400 Bad Request` — Credenciais inválidas ou usuário inexistente:
-    ```json
-    {
-      "sucesso": false,
-      "mensagem": "Usuário ou senha incorretos",
-      "dados": null
-    }
-    ```
-
----
-
-#### 📌 Renovação Silenciosa de Sessão (Silent Refresh)
-- **Rota:** `POST /api/v1/auth/refresh`
-- **Descrição:** Renova o Access Token sem intervenção do usuário. O navegador anexa o Cookie `refreshToken` automaticamente. Aplica **Rotação de Refresh Token (OWASP)**: o token anterior é revogado no banco e um par totalmente novo é gerado.
-- **Requisição:** Nenhum corpo obrigatório. O navegador envia o Cookie com `withCredentials = true` / `credentials: 'include'`.
-- **Respostas:**
-  - `200 OK` — Token renovado com sucesso:
-    ```json
-    {
-      "sucesso": true,
-      "mensagem": "Token renovado com sucesso",
-      "dados": {
-        "userName": "joaosilva",
-        "email": "joao@exemplo.com",
-        "token": "eyJhbGciOiJIUzI1NiIs..."
-      }
-    }
-    ```
-  - `401 Unauthorized` — Sessão expirada ou Refresh Token inválido/revogado (o cookie é automaticamente removido pelo servidor).
-
----
-
-#### 📌 Logout e Encerramento de Sessão
-- **Rota:** `POST /api/v1/auth/logout`
-- **Descrição:** Revoga o Refresh Token ativo no banco de dados e limpa o Cookie `HttpOnly` do navegador.
-- **Respostas:**
-  - `200 OK` — Sessão encerrada:
-    ```json
-    {
-      "sucesso": true,
-      "mensagem": "Sessão encerrada com sucesso.",
-      "dados": true
-    }
-    ```
-
----
-
-### 2. Inteligência Artificial (`/api/v1/ai`)
-
-#### 📌 Solicitação de Conclusão / Chat Completion
-- **Rota:** `POST /api/v1/ai/completion`
-- **Descrição:** Envia prompt e mensagens estruturadas para o provedor de IA configurado, retornando o conteúdo textual gerado pelo assistente com suporte a métricas de execução e cancelamento de requisição.
-- **Corpo da Requisição (`AiCompletionRequestV1Dto`):**
-  ```json
-  {
-    "model": "devQuest",
-    "messages": [
-      {
-        "role": "user",
-        "content": "Olá! Responda apenas: Conexão bem-sucedida!"
-      }
-    ],
-    "temperature": 0.7,
-    "stream": false
-  }
-  ```
-- **Respostas:**
-  - `200 OK` — Resposta gerada com sucesso pela IA:
-    ```json
-    {
-      "sucesso": true,
-      "mensagem": "Resposta gerada com sucesso",
-      "dados": "Conexão bem-sucedida!"
-    }
-    ```
-  - `400 Bad Request` — Erro de comunicação, limite de taxa ou falha no provedor externo:
-    ```json
-    {
-      "sucesso": false,
-      "mensagem": "Limite de requisições à IA temporariamente excedido. Tente novamente em instantes.",
-      "dados": null
-    }
-    ```
-
----
-
-## 🧭 Arquitetura de DTOs: Fluxo de Criação de Roadmaps
-
-Para suportar o fluxo inteligente de geração de trilhas de aprendizado personalizadas via IA e persistência no PostgreSQL, a API adota uma separação rigorosa de responsabilidades entre três categorias de DTOs:
-
-```text
-┌─────────────────────────────────┐
-│     Cliente / Frontend          │
-└───────────────┬─────────────────┘
-                │  1. CreateRoadmapRequestV1Dto (Specialty, Stack, Language, Level)
-                ▼
-┌─────────────────────────────────┐
-│  RoadmapService / Controller    │
-└───────────────┬─────────────────┘
-                │  2. Monta mensagens com RoadmapPrompt e invoca OpenRouter
-                ▼
-┌─────────────────────────────────┐
-│    Provedor de IA (OpenRouter)  │
-└───────────────┬─────────────────┘
-                │  3. Retorna JSON sem IDs (schema estrito do prompt)
-                ▼
-┌─────────────────────────────────┐
-│       AiRoadmapOutputDto        │ ◄─── CONTRATO COM O PROMPT DA IA
-└───────────────┬─────────────────┘
-                │  4. Valida e mapeia para Models do EF Core (UserTechProfile, Topics, Lessons)
-                ▼
-┌─────────────────────────────────┐
-│   Banco de Dados (PostgreSQL)   │ ◄─── Gera chaves (`RoadmapId`, `IdTopic`, `IdLesson`)
-└───────────────┬─────────────────┘
-                │  5. Projeta dados salvos com IDs e progresso consolidado
-                ▼
-┌─────────────────────────────────┐
-│   CreateRoadmapResponseV1Dto    │ ◄─── CONTRATO COM O CLIENTE HTTP
-└─────────────────────────────────┘
-```
-
-### 1. `CreateRoadmapRequestV1Dto` (Request DTO - Entrada HTTP)
-- **Origem:** Cliente HTTP (Frontend / Mobile).
-- **Destino:** `RoadmapController` / Camada de entrada.
-- **Propósito:** Captura apenas a intenção e as escolhas pedagógicas do desenvolvedor (`Specialty`, `Stack`, `Language`, `ExperienceLevel`).
-- **Segurança:** Não recebe `IdUser` no corpo da requisição. A identidade do usuário autenticado é extraída de forma segura via Claims do token JWT no servidor.
-
-### 2. `AiRoadmapOutputDto` (Output DTO - Contrato Interno com a IA)
-- **Origem:** Resposta JSON pura retornada pelo modelo de IA (OpenRouter).
-- **Destino:** Camada de serviço de IA / Desserializador JSON.
-- **Propósito:** Representa com fidelidade a árvore de aprendizado sugerida pelo prompt pedagógico (`title`, `description`, `topics`, `lessons`).
-- **Isolamento e Resiliência:** A IA não possui conhecimento sobre banco de dados, chaves primárias, sequências de autoincremento ou chaves estrangeiras. O `AiRoadmapOutputDto` atua como uma barreira protetora para validar a estrutura pedagógica gerada pela IA antes de abrir qualquer transação no banco de dados.
-
-### 3. `CreateRoadmapResponseV1Dto` (Response DTO - Saída HTTP)
-- **Origem:** Camada de serviço / Persistência no EF Core.
-- **Destino:** Cliente HTTP (Frontend / Mobile).
-- **Propósito:** Retorna o roadmap completo e persistido com todas as chaves definitivas do banco de dados (`RoadmapId`, `IdTopic`, `IdLesson`), progresso inicial (`PercentProgress = 0`), status de conclusão (`IsCompleted = false`), e os pontos de experiência (`PointsXpTotal`) para alimentar a interface e o motor de gamificação.
-
----
-
-## 🛡️ Arquitetura de Segurança de Tokens
-
-A aplicação adota o padrão de mercado para proteção contra ataques **XSS (Cross-Site Scripting)** e **CSRF (Cross-Site Request Forgery)**:
-
-```
-                      ┌──────────────────────────────────────────┐
-                      │                FRONT-END                 │
-                      │  - Access Token: Estado RAM (React State)│
-                      │  - Refresh Token: Cookie HttpOnly (Browser)│
-                      └─────────────────────┬────────────────────┘
-                                            │
-                1. POST /login (Credenciais) │
-                ◄───────────────────────────┤
-                Retorna:                    │
-                - Body: { token (access) }  │
-                - Set-Cookie: refreshToken  │
-                  (HttpOnly, Secure, SameSite, Path=/api/v1/auth)
-                                            │
-                2. Requisições normais à API│
-                   (Header: Bearer <access>)│
-                ───────────────────────────►│ Valida JWT no Middleware
-                                            │
-                3. Access Token expira (401)│
-                ◄───────────────────────────┘
-                                            │
-                4. POST /auth/refresh       │
-                   (Browser anexa o Cookie) │
-                ───────────────────────────►│ Valida e Rotaciona no Banco
-                ◄───────────────────────────┘ Devolve novo Access Token
-                Novo Access Token na RAM    │ e atualiza Cookie do Refresh
-```
-
-1. **Access Token Volátil (RAM)**:
-   - Expira em **15 minutos**.
-   - Fica guardado **apenas na memória volátil** da aplicação front-end (ex: estado do React/Vue ou Context API).
-   - **Nunca** é gravado no `localStorage` ou `sessionStorage`, prevenindo o roubo definitivo da sessão via injeções de script XSS.
-2. **Refresh Token em Cookie `HttpOnly`**:
-   - Expira em **7 dias**.
-   - Possui as flags `HttpOnly = true`, `Secure = true` (em HTTPS), `SameSite = SameSiteMode.Lax` e `Path = "/api/v1/auth"`.
-   - Scripts JavaScript **não possuem acesso de leitura** a esse cookie.
-   - O escopo restrito (`Path = "/api/v1/auth"`) assegura que o cookie só trafegue em rotas de renovação e logout.
-3. **Rotação de Refresh Token (OWASP)**:
-   - A cada chamada ao `/api/v1/auth/refresh`, o token anterior é invalidado no banco (`RevokedAt = DateTime.UtcNow`) e um novo token é emitido.
-   - Se um token comprometido tentar ser reutilizado, o sistema detecta a violação e encerra a sessão.
-4. **CORS com Suporte a Credenciais**:
-   - Política `AllowFrontend` com `.AllowCredentials()` e origens locais explícitas permitidas em desenvolvimento (`localhost:3000`, `localhost:5173`, etc.).
-5. **Pipeline com `AddJwtBearer`**:
-   - `app.UseAuthentication()` configurado antes de `app.UseAuthorization()`, validando assinaturas com `ClockSkew = TimeSpan.Zero`.
-6. **Criptografia BCrypt**:
-   - Senhas criptografadas com `BCrypt.Net-Next` com salt automático.
-
----
-
-## 🧪 Como o Front-End Deve Consumir
-
-1. **Configuração de Requisições (com envio de cookies)**:
-   - **Axios**: `axios.defaults.withCredentials = true;`
-   - **Fetch API**: `fetch(url, { credentials: 'include', ... })`
-2. **Armazenamento**:
-   - Guarde o `dados.token` em um estado (`useState` ou store global).
-3. **Persistência ao Recarregar a Página (F5)**:
-   - Ao iniciar a aplicação front-end, chame silenciosamente `POST /api/v1/auth/refresh`. Se o cookie for válido, a sessão é restaurada na RAM sem pedir nova senha ao usuário.
-4. **Interceptor de Renovação Automática**:
-   - Configure o interceptor de resposta para capturar `401 Unauthorized`, chamar `/api/v1/auth/refresh` e repetir a requisição original com o novo token de acesso.
-
----
-
-## 🐳 Containerização com Docker (Multi-Stage Build)
-
-A aplicação conta com um [Dockerfile](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/Dockerfile) configurado com a estratégia de **Multi-Stage Build**:
-
-- **Estágio `builder` (`dotnet/sdk:10.0`)**: Restaura dependências, compila e gera os binários otimizados com cache de camadas.
-- **Estágio `runtime` (`dotnet/aspnet:10.0`)**: Imagem final leve contendo apenas o runtime necessário, executando com o usuário não-root `app` (`USER app`).
-
-### Como Construir e Executar
 ```bash
-# Construir a imagem
+# 1. Construir a imagem Docker
 docker build -t devquest-backend:latest .
 
-# Executar o contêiner
+# 2. Executar o contêiner
 docker run -d \
   --name devquest-api \
   -p 8080:8080 \
@@ -464,17 +198,50 @@ docker run -d \
 
 ---
 
+## 📡 Resumo dos Endpoints da API
+
+Para contratos completos, corpos de requisição e respostas detalhadas, consulte a **[Especificação da API (docs/API.md)](file:///c:/Users/Gal/Documents/Projetos/Dev-Quest/BackEnd/docs/API.md)**.
+
+| Módulo | Método | Rota | Descrição |
+| :--- | :--- | :--- | :--- |
+| **Auth** | `POST` | `/api/v1/auth/register` | Cadastro com hash BCrypt, par de tokens e cookie HttpOnly |
+| **Auth** | `POST` | `/api/v1/auth/login` | Login via e-mail ou username com emissão de sessão |
+| **Auth** | `POST` | `/api/v1/auth/refresh` | Renovação silenciosa com Rotação de Refresh Token (OWASP) |
+| **Auth** | `POST` | `/api/v1/auth/logout` | Revogação de sessão e limpeza do cookie |
+| **IA** | `POST` | `/api/v1/ai/completion` | Chat completion resiliente com telemetria via OpenRouter |
+| **Roadmaps** | `POST` | `/api/v1/roadmaps` | Geração com IA e persistência atômica da trilha no banco |
+| **Roadmaps** | `GET` | `/api/v1/roadmaps/{id}` | Busca de roadmap detalhado por identificador |
+| **Roadmaps** | `GET` | `/api/v1/roadmaps` | Listagem de todos os roadmaps do usuário |
+| **Roadmaps** | `GET` | `/api/v1/roadmaps/user/{userId}` | Listagem de roadmaps por rota de usuário |
+
+---
+
+## 🧪 Como o Front-End Deve Consumir
+
+1. **Configuração de Requisições (com envio de cookies)**:
+   - **Axios**: `axios.defaults.withCredentials = true;`
+   - **Fetch API**: `fetch(url, { credentials: 'include', ... })`
+2. **Armazenamento de Credenciais**:
+   - Guarde o `dados.token` (Access Token) no estado em memória da aplicação (`useState`, Pinia, Vuex ou Zustand).
+   - **Nunca** salve tokens no `localStorage` ou `sessionStorage`.
+3. **Restauração de Sessão (F5)**:
+   - Ao iniciar a aplicação, faça uma requisição silenciosa para `POST /api/v1/auth/refresh`. Se o cookie for válido, a sessão é restaurada na memória sem solicitar nova senha ao usuário.
+4. **Interceptor de Renovação Automática**:
+   - Configure o interceptor de resposta HTTP para interceptar `401 Unauthorized`, chamar silenciosamente `/api/v1/auth/refresh` e reenviar a requisição original com o novo token de acesso.
+
+---
+
 ## 📌 Status e Próximos Passos Sugeridos
 
 - [x] Arquitetura em camadas com Injeção de Dependências.
 - [x] Autenticação e cadastro com hash de senha BCrypt.
-- [x] Geração e validação de tokens JWT (Access Token de 15 minutos).
-- [x] Refresh Token persistido com Rotação Automática (OWASP) e Cookie `HttpOnly`.
+- [x] Geração e validação de Access Tokens JWT (15 minutos).
+- [x] Refresh Token seguro em Cookie `HttpOnly` com Rotação Automática (OWASP).
+- [x] Armazenamento de Refresh Token com **Hash SHA-256** no banco de dados.
 - [x] Endpoints `/api/v1/auth/refresh` e `/api/v1/auth/logout`.
-- [x] Pipeline de Autenticação JWT Bearer configurado nativamente no ASP.NET Core (`Program.cs`).
+- [x] Módulo completo de Roadmaps com integração pedagógica à IA e persistência no PostgreSQL.
 - [x] CORS configurado com suporte a Cookies HttpOnly (`AllowCredentials`).
-- [x] Integração desacoplada e observável com IA (OpenRouter).
-- [x] Middleware global para tratamento de exceções.
+- [x] Middleware global para tratamento uniforme de exceções (500).
 - [x] Containerização com Docker e Multi-Stage Build otimizado.
-- [ ] Ativar proteção de rotas privadas com atributo `[Authorize]` nos endpoints necessários (ex: criação de perfis e tópicos).
+- [ ] Ativar proteção de rotas privadas com atributo `[Authorize]` nos endpoints de roadmaps.
 - [ ] Implementar política de Rate Limiting nativa no endpoint de IA para evitar abusos de requisições.

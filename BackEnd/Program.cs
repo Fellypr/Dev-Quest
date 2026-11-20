@@ -58,12 +58,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectString);
 });
 
-builder.Services.Configure<JwtSettings>(
-    builder.Configuration.GetSection("Jwt")
-);
-
+ 
 builder.Services.Configure<OpenRouterSettings>(
     builder.Configuration.GetSection(OpenRouterSettings.SectionName)
+);
+
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("Jwt")
 );
 
 // Configuração de Autenticação JWT Bearer
@@ -98,6 +99,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IRoadmapService,RoadmapService>();
 
 builder.Services.AddHttpClient<IAiRequestService, AiRequestService>((serviceProvider, client) =>
 {
