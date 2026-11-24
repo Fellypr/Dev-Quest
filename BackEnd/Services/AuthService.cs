@@ -3,6 +3,7 @@ using BackEnd.DTOs.v1;
 using BackEnd.interfaces;
 using BackEnd.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace BackEnd.services
@@ -11,11 +12,13 @@ namespace BackEnd.services
     {
         private readonly AppDbContext _context;
         private readonly IJwtService _jwtService;
+        private readonly ILogger<AuthService> _logger;
 
-        public AuthService(AppDbContext context, IJwtService jwtService)
+        public AuthService(AppDbContext context, IJwtService jwtService, ILogger<AuthService> logger)
         {
             _context = context;
             _jwtService = jwtService;
+            _logger = logger;
         }
 
         public async Task<ApiResponse<UserV1Response>> RegisterUser(UserV1Dto userDto, string? ipAddress = null)
@@ -103,7 +106,35 @@ namespace BackEnd.services
                 .Include(rt => rt.User)
                 .FirstOrDefaultAsync(rt => rt.TokenHash == tokenHash);
 
-            if (tokenEntity == null || !tokenEntity.IsActive)
+            if (tokenEntity == null)
+            {
+                return ApiResponse<UserV1Response>.Erro("Token de renovação inválido ou expirado.");
+            }
+
+            // DETECÇÃO DE REUSO (REPLAY ATTACK - SCRUM-14):
+            // Se o token já foi revogado e tem substituto, alguém tentou usar um token antigo (possível vazamento/ataque).
+            // A regra de segurança manda cancelar na hora todas as sessões ativas do usuário para proteção.
+            if (tokenEntity.IsRevoked && !string.IsNullOrEmpty(tokenEntity.ReplacedByTokenHash))
+            {
+                var activeTokens = await _context.RefreshTokens
+                    .Where(rt => rt.UserId == tokenEntity.UserId && rt.RevokedAt == null && rt.ExpiresAt > DateTime.UtcNow)
+                    .ToListAsync();
+
+                foreach (var activeToken in activeTokens)
+                {
+                    activeToken.RevokedAt = DateTime.UtcNow;
+                    activeToken.RevokedByIp = ipAddress;
+                    activeToken.ReplacedByTokenHash = "REVOKED_FAMILY_REPLAY_ATTACK";
+                }
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogWarning("🚨 ALERTA DE SEGURANÇA: Tentativa de reuso de Refresh Token detectada para o UserId {UserId} a partir do IP {IpAddress}. Todos os tokens ativos foram revogados.", tokenEntity.UserId, ipAddress ?? "Desconhecido");
+
+                return ApiResponse<UserV1Response>.Erro("Violação de segurança detectada: tentativa de reuso de token. Todas as sessões foram encerradas por segurança. Faça login novamente.");
+            }
+
+            if (!tokenEntity.IsActive)
             {
                 return ApiResponse<UserV1Response>.Erro("Token de renovação inválido ou expirado.");
             }
