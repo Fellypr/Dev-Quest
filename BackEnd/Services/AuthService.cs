@@ -18,7 +18,7 @@ namespace BackEnd.services
             _jwtService = jwtService;
         }
 
-        public async Task<ApiResponse<UserV1Response>> RegisterUser(UserV1Dto userDto)
+        public async Task<ApiResponse<UserV1Response>> RegisterUser(UserV1Dto userDto, string? ipAddress = null)
         {
             var emailExists = await _context.AppUsers.AnyAsync(user => user.Email == userDto.Email);
             if (emailExists)
@@ -39,7 +39,7 @@ namespace BackEnd.services
             await _context.SaveChangesAsync();
 
             var accessToken = _jwtService.GenerateAccessToken(user);
-            var (rawRefreshToken, refreshTokenEntity) = _jwtService.GenerateRefreshToken(user.Id);
+            var (rawRefreshToken, refreshTokenEntity) = _jwtService.GenerateRefreshToken(user.Id, ipAddress);
 
             _context.RefreshTokens.Add(refreshTokenEntity);
             await _context.SaveChangesAsync();
@@ -56,7 +56,7 @@ namespace BackEnd.services
             return ApiResponse<UserV1Response>.Ok(userResponse, "Usuário cadastrado com sucesso");
         }
 
-        public async Task<ApiResponse<UserV1Response>> Authenticate(UserV1Dto userDto)
+        public async Task<ApiResponse<UserV1Response>> Authenticate(UserV1Dto userDto, string? ipAddress = null)
         {
             var userExist = await _context.AppUsers
                 .FirstOrDefaultAsync(u => u.Email == userDto.Email || u.UserName == userDto.UserName);
@@ -72,7 +72,7 @@ namespace BackEnd.services
             }
 
             var accessToken = _jwtService.GenerateAccessToken(userExist);
-            var (rawRefreshToken, refreshTokenEntity) = _jwtService.GenerateRefreshToken(userExist.Id);
+            var (rawRefreshToken, refreshTokenEntity) = _jwtService.GenerateRefreshToken(userExist.Id, ipAddress);
 
             _context.RefreshTokens.Add(refreshTokenEntity);
             await _context.SaveChangesAsync();
@@ -89,7 +89,7 @@ namespace BackEnd.services
             return ApiResponse<UserV1Response>.Ok(userResponse, $"Bem vindo de volta {userResponse.UserName}");
         }
 
-        public async Task<ApiResponse<UserV1Response>> RefreshToken(string? refreshToken)
+        public async Task<ApiResponse<UserV1Response>> RefreshToken(string? refreshToken, string? ipAddress = null)
         {
             if (string.IsNullOrWhiteSpace(refreshToken))
             {
@@ -108,11 +108,14 @@ namespace BackEnd.services
                 return ApiResponse<UserV1Response>.Erro("Token de renovação inválido ou expirado.");
             }
 
-            // Invalida o token antigo pra ninguem reutilizar (rotacao de token)
-            tokenEntity.RevokedAt = DateTime.UtcNow;
-
-            var (newRawRefreshToken, newRefreshTokenEntity) = _jwtService.GenerateRefreshToken(tokenEntity.UserId);
+            // Gera o novo token já associado ao IP do requisitante
+            var (newRawRefreshToken, newRefreshTokenEntity) = _jwtService.GenerateRefreshToken(tokenEntity.UserId, ipAddress);
             var newAccessToken = _jwtService.GenerateAccessToken(tokenEntity.User);
+
+            // Invalida o token antigo, anota quem revogou e salva o hash do token novo que o substituiu (SCRUM-13)
+            tokenEntity.RevokedAt = DateTime.UtcNow;
+            tokenEntity.RevokedByIp = ipAddress;
+            tokenEntity.ReplacedByTokenHash = newRefreshTokenEntity.TokenHash;
 
             _context.RefreshTokens.Add(newRefreshTokenEntity);
             await _context.SaveChangesAsync();
@@ -129,7 +132,7 @@ namespace BackEnd.services
             return ApiResponse<UserV1Response>.Ok(userResponse, "Token renovado com sucesso");
         }
 
-        public async Task<ApiResponse<bool>> RevokeToken(string? refreshToken)
+        public async Task<ApiResponse<bool>> RevokeToken(string? refreshToken, string? ipAddress = null)
         {
             if (string.IsNullOrWhiteSpace(refreshToken))
             {
@@ -144,6 +147,7 @@ namespace BackEnd.services
             if (tokenEntity != null && tokenEntity.IsActive)
             {
                 tokenEntity.RevokedAt = DateTime.UtcNow;
+                tokenEntity.RevokedByIp = ipAddress;
                 await _context.SaveChangesAsync();
             }
 

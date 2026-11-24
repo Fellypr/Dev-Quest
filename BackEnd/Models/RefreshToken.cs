@@ -18,6 +18,15 @@ namespace BackEnd.Models
 
         public DateTime? RevokedAt { get; set; }
 
+        // Guarda o IP que gerou o token (para auditoria)
+        public string? CreatedByIp { get; set; }
+
+        // Guarda o IP que cancelou o token
+        public string? RevokedByIp { get; set; }
+
+        // Salva o hash do token novo que substituiu este antigo (rastreabilidade de linhagem)
+        public string? ReplacedByTokenHash { get; set; }
+
         public int UserId { get; set; }
 
         [ForeignKey("UserId")]

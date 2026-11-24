@@ -62,7 +62,7 @@ namespace BackEnd.services
         }
 
         // Devolve o token puro pro front e a entidade com o hash pro banco
-        public (string RawToken, RefreshToken Entity) GenerateRefreshToken(int userId)
+        public (string RawToken, RefreshToken Entity) GenerateRefreshToken(int userId, string? ipAddress = null)
         {
             var expirationDays = _jwtSettings.RefreshTokenExpirationDays > 0 ? _jwtSettings.RefreshTokenExpirationDays : 7;
             var randomBytes = RandomNumberGenerator.GetBytes(64);
@@ -73,7 +73,8 @@ namespace BackEnd.services
                 UserId = userId,
                 TokenHash = HashToken(rawToken),
                 CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddDays(expirationDays)
+                ExpiresAt = DateTime.UtcNow.AddDays(expirationDays),
+                CreatedByIp = ipAddress
             };
 
             return (rawToken, entity);

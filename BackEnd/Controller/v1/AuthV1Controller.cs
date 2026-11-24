@@ -21,7 +21,7 @@ namespace BackEnd.controller
         [HttpPost("register")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] UserV1Dto user)
         {
-            var response = await _auth.RegisterUser(user);
+            var response = await _auth.RegisterUser(user, GetClientIpAddress());
             if (!response.Sucesso)
             {
                return Unauthorized(response);
@@ -38,7 +38,7 @@ namespace BackEnd.controller
         [HttpPost("login")]
         public async Task<IActionResult> Authenticate([FromBody] UserV1Dto userDto)
         {
-            var response = await _auth.Authenticate(userDto);
+            var response = await _auth.Authenticate(userDto, GetClientIpAddress());
             if (!response.Sucesso)
             {
                 return BadRequest(response);
@@ -56,7 +56,7 @@ namespace BackEnd.controller
         public async Task<IActionResult> RefreshToken()
         {
             var refreshToken = Request.Cookies[RefreshTokenCookieName];
-            var response = await _auth.RefreshToken(refreshToken);
+            var response = await _auth.RefreshToken(refreshToken, GetClientIpAddress());
 
             if (!response.Sucesso)
             {
@@ -76,10 +76,22 @@ namespace BackEnd.controller
         public async Task<IActionResult> Logout()
         {
             var refreshToken = Request.Cookies[RefreshTokenCookieName];
-            var response = await _auth.RevokeToken(refreshToken);
+            var response = await _auth.RevokeToken(refreshToken, GetClientIpAddress());
 
             DeleteRefreshTokenCookie();
             return Ok(response);
+        }
+
+        private string? GetClientIpAddress()
+        {
+            if (Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor))
+            {
+                var ip = forwardedFor.ToString().Split(',')[0].Trim();
+                if (!string.IsNullOrEmpty(ip))
+                    return ip;
+            }
+
+            return HttpContext.Connection.RemoteIpAddress?.ToString();
         }
 
         private void SetRefreshTokenCookie(string refreshToken, DateTime expires)
